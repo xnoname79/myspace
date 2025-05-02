@@ -331,7 +331,8 @@
     let player, updateInterval;
     let playlist = [];
     let currentIndex = -1;
-    let nextPlaylist = []
+    let nextPlaylist = [];
+    let currentVideoId = "";
 
     // Elements
     const inputEl = document.getElementById('search-input');
@@ -410,16 +411,17 @@
         events: {
           onReady: setupProgressUpdater,
           onStateChange: onPlayerStateChange
-
         }
       });
     }
 
-    function onPlayerStateChange() {
+    function onPlayerStateChange(event) {
       if (event.data === YT.PlayerState.PLAYING) {
         const info = player.getVideoData();
         const vid = info.video_id;
-        const index = playlist.find(item => item.id.videoId === vid);
+        if (currentVideoId === vid) return;
+        currentVideoId = vid
+        const index = playlist.findIndex(item => item.id.videoId === vid);
         const item = playlist[index];
         if (!item) return;
         currentIndex = index;
@@ -439,13 +441,8 @@
       const item = playlist[index];
       nextPlaylist = playlist.slice(index)
       if (!item) return;
-      currentIndex = index;
-      player.loadPlaylist({
-        playlist: nextPlaylist.map(item => item.id.videoId),
-        index: index,
-        startSeconds: 0,
-        suggestedQuality: 'default'
-      });
+      player.loadPlaylist(
+        nextPlaylist.map(item => item.id.videoId));
       trackThumb.src = item.snippet.thumbnails.default.url;
       mainTrackThumb.src = item.snippet.thumbnails.default.url;
       trackTitle.textContent = item.snippet.title;
