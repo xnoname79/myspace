@@ -331,6 +331,7 @@
     let player, updateInterval;
     let playlist = [];
     let currentIndex = -1;
+    let nextPlaylist = []
 
     // Elements
     const inputEl = document.getElementById('search-input');
@@ -406,15 +407,45 @@
         width: '0',
         videoId: '',
         playerVars: { autoplay: 1, controls: 0, rel: 0 },
-        events: { onReady: setupProgressUpdater }
+        events: {
+          onReady: setupProgressUpdater,
+          onStateChange: onPlayerStateChange
+
+        }
       });
+    }
+
+    function onPlayerStateChange() {
+      if (event.data === YT.PlayerState.PLAYING) {
+        const info = player.getVideoData();
+        const vid = info.video_id;
+        const index = playlist.find(item => item.id.videoId === vid);
+        const item = playlist[index];
+        if (!item) return;
+        currentIndex = index;
+        trackThumb.src = item.snippet.thumbnails.default.url;
+        mainTrackThumb.src = item.snippet.thumbnails.default.url;
+        trackTitle.textContent = item.snippet.title;
+        mainTrackTitle.textContent = item.snippet.title;
+        trackArtist.textContent = item.snippet.channelTitle;
+        playBtn.disabled = false;
+        pauseBtn.disabled = false;
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === playlist.length - 1;
+      }
     }
 
     function loadAudio(index) {
       const item = playlist[index];
+      nextPlaylist = playlist.slice(index)
       if (!item) return;
       currentIndex = index;
-      player.loadVideoById(item.id.videoId);
+      player.loadPlaylist({
+        playlist: nextPlaylist.map(item => item.id.videoId),
+        index: index,
+        startSeconds: 0,
+        suggestedQuality: 'default'
+      });
       trackThumb.src = item.snippet.thumbnails.default.url;
       mainTrackThumb.src = item.snippet.thumbnails.default.url;
       trackTitle.textContent = item.snippet.title;
