@@ -93,15 +93,29 @@
     .video-info {
       margin-left: 12px;
       overflow: hidden;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
     }
 
     .video-title {
       margin: 0;
       font-size: 16px;
-      white-space: nowrap;
+      line-height: 1.4;
+      color: #fff;
+
+      /* NEW: enable multi-line ellipsis */
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      /* ← show at most 2 lines */
       overflow: hidden;
       text-overflow: ellipsis;
-      color: #FFFFFF;
+
+      /* wrap words cleanly if needed */
+      word-break: break-word;
+      /* remove this—it’s not a valid property */
+      /* text-wrap: wrap; */
     }
 
     .video-channel {
@@ -129,9 +143,12 @@
     /* Player Bar */
     .player-bar {
       position: fixed;
-      bottom: 0;
       left: 0;
-      width: 100%;
+      right: 0;
+      /* ← add this */
+      bottom: 0;
+      /* you can now drop width:100% if you like, or leave it */
+      /* width: 100%;  */
       background: #181818;
       display: flex;
       align-items: center;
@@ -140,6 +157,8 @@
       box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
       gap: 20px;
       flex-wrap: wrap;
+      box-sizing: border-box;
+      /* ensure your padding is included in the total width */
     }
 
     .current-track {
