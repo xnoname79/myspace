@@ -107,6 +107,15 @@
       cursor: pointer;
     }
 
+    .pdf-overlay .save-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 32px;
+      color: #fff;
+      cursor: pointer;
+    }
+
     #pdfViewer {
       width: 80vw;
       height: 90vh;
@@ -169,6 +178,9 @@
     <div class="close-btn" id="pdf-close-btn">
       X
     </div>
+    <button id="pdf-save-btn" class="save-btn" style="display: none;">
+      💾 Save PDF
+    </button>
     <div id="pdfViewer"></div>
     <div style='position:absolute;bottom:20px;color:white;' id="pdf-loading-message">
       Loading PDF...
@@ -242,12 +254,70 @@
       const viewer = document.getElementById('pdfViewer');           // if you switched to #pdfViewer
       const loadingMsg = document.getElementById('pdf-loading-message');
       const closeBtn = document.getElementById('pdf-close-btn');
+      const saveBtn = document.getElementById("pdf-save-btn");
+
+      let currentPDFUrl = ""
+      const APP_URL = "https://script.google.com/macros/s/AKfycbxx2dpb2yr5lK1zO8gVio6mLFtbqlwlSwsbiRQC2Yq7qQZ4nwE-8QLNS_MG1TAYzTD-xw/exec"
+      let onSavedChosen = false
+
+      // Utility: inject JSONP
+      function jsonp(params) {
+        const tag = document.createElement('script');
+        tag.id = 'saved-pdf-jsonp';
+        tag.src = APP_URL + '?' + new URLSearchParams(params).toString();
+        document.body.appendChild(tag);
+      }
+
+      // 1) Load saved list on start
+      window.listCallback = async function (list) {
+        document.getElementById("saved-pdf-jsonp")?.remove()
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = list.map(item => `
+        <div class="result">
+          <span style="color: #26b67c; cursor: pointer" onclick="showSavedPdfInline('${item.id}')">
+            ${item.name}
+          </span>
+          <p>${item.title}</p>
+        </div>
+      `).join('');
+      }
+      jsonp({ action: 'list', callback: 'listCallback' });
+
+      window.showSavedPdfInline = function (fileId = "") {
+        onSavedChosen = true
+        overlay.style.display = 'flex';
+        loadingMsg.textContent = 'Fetching PDF…';
+        loadingMsg.style.display = 'flex';
+        viewer.innerHTML = '';
+        jsonp({ action: 'get', id: fileId, callback: 'pdfCallback' });
+      }
+
+
+      window.saveCallback = async function () {
+        loadingMsg.style.display = 'none';
+        saveBtn.style.display = "none"
+        document.getElementById("saved-pdf-jsonp")?.remove()
+      }
+
+      // 2) Save button handler
+      saveBtn.addEventListener('click', () => {
+        if (!currentPDFUrl) return alert('No PDF loaded!');
+        loadingMsg.textContent = 'Saving…';
+        loadingMsg.style.display = 'flex';
+        jsonp({
+          action: 'save',
+          query: document.getElementById('query').value,
+          pdf: currentPDFUrl,
+          callback: 'saveCallback'
+        });
+      });
 
       // Close & clear
       closeBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
         viewer.innerHTML = '';
         loadingMsg.style.display = 'none';
+        onSavedChosen = false;
       });
 
       // JSONP callback from your proxy
@@ -291,7 +361,10 @@
 
             viewer.appendChild(canvas);
           }
-
+          const pdfSaveBtn = document.getElementById("pdf-save-btn")
+          if (!onSavedChosen) {
+            pdfSaveBtn.style.display = "block"
+          }
           loadingMsg.style.display = 'none';
         } catch (renderErr) {
           console.error('Render failed', renderErr);
@@ -305,6 +378,7 @@
           alert('🚫 Invalid URL – please provide a link ending in “.pdf”.');
           return;
         }
+        currentPDFUrl = url
         // 1) Show overlay + initial spinner
         overlay.style.display = 'flex';
         loadingMsg.textContent = 'Fetching PDF…';

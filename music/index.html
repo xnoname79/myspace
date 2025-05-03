@@ -374,6 +374,8 @@
     overlay.addEventListener('click', e => {
       if (e.target === overlay) {
         overlay.style.display = 'none';
+        currentTimeEl.textContent = "0:00"
+        durationEl.textContent = "0:00"
         stopPlaylist()
       }
     });
