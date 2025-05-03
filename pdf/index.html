@@ -116,6 +116,17 @@
     <button type="submit">Search PDFs</button>
   </form>
   <div id="results"></div>
+  <div class="pdf-overlay" style="display: none;" id="pdf-overlay">
+    <div class="close-btn" id="pdf-close-btn">
+      X
+    </div>
+    <iframe id="pdf-content" title="HTML UI"
+      style="border: none; display: block;">
+    </iframe>
+    <div style='position:absolute;bottom:20px;color:white;' id="pdf-loading-message">
+      Loading PDF...
+    </div>
+  </div>
 
   <script>
     // ← paste your Apps Script Web App URL here:
@@ -173,53 +184,18 @@
     // Fetch PDF as blob and show in overlay
     function showPDFInline(event, url = "") {
       // build overlay
-      const overlay = document.createElement('div');
-      overlay.className = 'pdf-overlay';
-      document.body.appendChild(overlay);
+      const pdfLoadingMessage = document.getElementById("pdf-loading-message")
+      const pdfContent = document.getElementById("pdf-content")
+      const pdfCloseBtn = document.getElementById("pdf-close-btn")
+      const pdfOverlay = document.getElementById("pdf-overlay")
 
-      const closeBtn = document.createElement('div');
-      closeBtn.className = 'close-btn';
-      closeBtn.textContent = '✕';
-      closeBtn.onclick = () => document.body.removeChild(overlay);
+      pdfOverlay.style = "display:flex;"
 
-      const message = document.createElement('div');
-      message.style = 'position:absolute;bottom:20px;color:white;';
-      message.textContent = 'Loading PDF…';
-
-      const iframe = document.createElement('iframe');
-      // use Google Docs viewer
-      iframe.src = url;
-
-      // // Flag to know if we’ve fallen back
-      // let didFallback = false;
-
-      // // 1) onload → success!
-      // iframe.onload = () => {
-      //   if (!didFallback) {
-      //     clearTimeout(timeoutId);
-      //     message.textContent = ''; // clear the “Loading…”
-      //   }
-      // };
-
-      // // 2) onerror → immediate fallback
-      // iframe.onerror = () => {
-      //   if (didFallback) return;
-      //   didFallback = true;
-      //   clearTimeout(timeoutId);
-      //   window.open(url, '_blank');
-      //   document.body.removeChild(overlay);
-      // };
-
-      // 3) timeout → fallback
-      // const timeoutId = setTimeout(() => {
-      //   if (didFallback) return;
-      //   didFallback = true;
-      //   message.textContent = '⏱️ Taking too long, opening in new tab…';
-      //   window.open(url, '_blank');
-      //   setTimeout(() => document.body.removeChild(overlay), 1500);
-      // }, 10_000);
-
-      overlay.append(closeBtn, iframe, message);
+      pdfContent.src = url;
+      pdfCloseBtn.addEventListener("click", e => {
+        pdfContent.src = ""
+        pdfOverlay.style = "display:none;"
+      })
     }
   </script>
 </body>
