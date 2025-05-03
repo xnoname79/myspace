@@ -133,9 +133,9 @@
       }
       resultsDiv.innerHTML = data.items.map(item => `
         <div class="result">
-          <a href="${item.link}" onclick="showPDFInline(event,'${item.link}')">
+          <span style="color: #26b67c; cursor: pointer" onclick="showPDFInline(event,'${item.link}')">
             ${item.title}
-          </a>
+          </span>
           <p>${item.snippet}</p>
         </div>
       `).join('');
@@ -171,7 +171,7 @@
     }
 
     // Fetch PDF as blob and show in overlay
-    function showPDFInline(url) {
+    function showPDFInline(event, url = "") {
       // build overlay
       const overlay = document.createElement('div');
       overlay.className = 'pdf-overlay';
@@ -188,38 +188,36 @@
 
       const iframe = document.createElement('iframe');
       // use Google Docs viewer
-      iframe.src =
-        'https://docs.google.com/gview?embedded=true&url=' +
-        encodeURIComponent(url);
+      iframe.src = url;
 
-      // Flag to know if we’ve fallen back
-      let didFallback = false;
+      // // Flag to know if we’ve fallen back
+      // let didFallback = false;
 
-      // 1) onload → success!
-      iframe.onload = () => {
-        if (!didFallback) {
-          clearTimeout(timeoutId);
-          message.textContent = ''; // clear the “Loading…”
-        }
-      };
+      // // 1) onload → success!
+      // iframe.onload = () => {
+      //   if (!didFallback) {
+      //     clearTimeout(timeoutId);
+      //     message.textContent = ''; // clear the “Loading…”
+      //   }
+      // };
 
-      // 2) onerror → immediate fallback
-      iframe.onerror = () => {
-        if (didFallback) return;
-        didFallback = true;
-        clearTimeout(timeoutId);
-        window.open(url, '_blank');
-        document.body.removeChild(overlay);
-      };
+      // // 2) onerror → immediate fallback
+      // iframe.onerror = () => {
+      //   if (didFallback) return;
+      //   didFallback = true;
+      //   clearTimeout(timeoutId);
+      //   window.open(url, '_blank');
+      //   document.body.removeChild(overlay);
+      // };
 
       // 3) timeout → fallback
-      const timeoutId = setTimeout(() => {
-        if (didFallback) return;
-        didFallback = true;
-        message.textContent = '⏱️ Taking too long, opening in new tab…';
-        window.open(url, '_blank');
-        setTimeout(() => document.body.removeChild(overlay), 1500);
-      }, 10_000);
+      // const timeoutId = setTimeout(() => {
+      //   if (didFallback) return;
+      //   didFallback = true;
+      //   message.textContent = '⏱️ Taking too long, opening in new tab…';
+      //   window.open(url, '_blank');
+      //   setTimeout(() => document.body.removeChild(overlay), 1500);
+      // }, 10_000);
 
       overlay.append(closeBtn, iframe, message);
     }
