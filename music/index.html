@@ -374,7 +374,7 @@
     overlay.addEventListener('click', e => {
       if (e.target === overlay) {
         overlay.style.display = 'none';
-        pauseAudio()
+        stopPlaylist()
       }
     });
 
@@ -495,9 +495,46 @@
       return m + ':' + (s < 10 ? '0' + s : s);
     }
 
-    function pauseAudio() {
-      player.pauseVideo();
+    function stopPlaylist() {
+      player.stopVideo();
+      player.loadPlaylist([]);
       mainTrackThumb.classList.remove('rotating');
+    }
+
+    // --- 2) Decide which search query to run based on current hour ---
+    function getSearchQuery() {
+      const hour = new Date().getHours();
+      if (hour < 10) {
+        // before 10 AM → chill / focus music
+        return 'lofi chill study music';
+      } else if (hour < 21) {
+        // 10 AM – 9 PM → trending pop rnb rap
+        return 'trending pop rnb rap music';
+      } else {
+        // after 9 PM → relax / sleep music
+        return 'relaxing sleep music';
+      }
+    }
+
+    async function automaticSearchVideos(q = "") {
+      if (!q) return;
+      buttonEl.disabled = true;
+      resultsEl.innerHTML = '<p>Searching...</p>';
+      try {
+        const res = await fetch(`${SEARCH_URL}?part=snippet&type=video&videoCategoryId=10&maxResults=10&q=${encodeURIComponent(q)}&key=${API_KEY}`);
+        const data = await res.json();
+        playlist = data.items;
+        renderResults();
+      } catch (err) {
+        resultsEl.innerHTML = '<p>Error fetching results.</p>';
+      } finally {
+        buttonEl.disabled = false;
+      }
+    }
+
+    async function showMusicForTime() {
+      const query = getSearchQuery();
+      await automaticSearchVideos(query);
     }
 
     // Controls
@@ -506,6 +543,8 @@
     prevBtn.addEventListener('click', () => loadAudio(currentIndex - 1));
     nextBtn.addEventListener('click', () => loadAudio(currentIndex + 1));
     progressBar.addEventListener('input', e => player.seekTo(parseInt(e.target.value, 10), true));
+
+    document.addEventListener('DOMContentLoaded', showMusicForTime);
   </script>
 </body>
 
