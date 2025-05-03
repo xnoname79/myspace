@@ -106,6 +106,55 @@
       color: #fff;
       cursor: pointer;
     }
+
+    #pdfViewer {
+      width: 80vw;
+      height: 90vh;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      margin: 0 auto;
+      padding: 10px;
+    }
+
+    #pdfViewer canvas {
+      display: block;
+      margin: 0 auto 20px;
+      max-width: 100%;
+    }
+
+    /* make #pdf-loading-message show a spinner + text */
+    #pdf-loading-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      color: #fff;
+      font-size: 1rem;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 12px;
+      border-radius: 4px;
+    }
+
+    #pdf-loading-message::before {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      border-top-color: #fff;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 
@@ -120,9 +169,7 @@
     <div class="close-btn" id="pdf-close-btn">
       X
     </div>
-    <iframe id="pdf-content" title="HTML UI"
-      style="border: none; display: block;">
-    </iframe>
+    <div id="pdfViewer"></div>
     <div style='position:absolute;bottom:20px;color:white;' id="pdf-loading-message">
       Loading PDF...
     </div>
@@ -144,7 +191,7 @@
       }
       resultsDiv.innerHTML = data.items.map(item => `
         <div class="result">
-          <span style="color: #26b67c; cursor: pointer" onclick="showPDFInline(event,'${item.link}')">
+          <span style="color: #26b67c; cursor: pointer" onclick="showPDFInline('${item.link}')">
             ${item.title}
           </span>
           <p>${item.snippet}</p>
@@ -181,23 +228,106 @@
       if (script) script.remove();
     }
 
-    // Fetch PDF as blob and show in overlay
-    function showPDFInline(event, url = "") {
-      // build overlay
-      const pdfLoadingMessage = document.getElementById("pdf-loading-message")
-      const pdfContent = document.getElementById("pdf-content")
-      const pdfCloseBtn = document.getElementById("pdf-close-btn")
-      const pdfOverlay = document.getElementById("pdf-overlay")
-
-      pdfOverlay.style = "display:flex;"
-
-      pdfContent.src = url;
-      pdfCloseBtn.addEventListener("click", e => {
-        pdfContent.src = ""
-        pdfOverlay.style = "display:none;"
-      })
-    }
   </script>
+  <script type="module">
+    import * as pdfjsLib
+      from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.min.mjs';
+
+    // Use the ES‐module worker build
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.worker.min.mjs';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const overlay = document.getElementById('pdf-overlay');
+      const viewer = document.getElementById('pdfViewer');           // if you switched to #pdfViewer
+      const loadingMsg = document.getElementById('pdf-loading-message');
+      const closeBtn = document.getElementById('pdf-close-btn');
+
+      // Close & clear
+      closeBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        viewer.innerHTML = '';
+        loadingMsg.style.display = 'none';
+      });
+
+      // JSONP callback from your proxy
+      window.pdfCallback = async function (b64) {
+        // remove old JSONP tag
+        const old = document.getElementById('pdf-jsonp');
+        if (old) old.remove();
+
+        overlay.style.display = 'flex';
+        loadingMsg.textContent = 'Decoding PDF…';
+        loadingMsg.style.display = 'flex';
+        viewer.innerHTML = '';
+
+        // Fast base64→ArrayBuffer decode
+        let data;
+        try {
+          const buf = await fetch(`data:application/pdf;base64,${b64}`)
+            .then(r => r.arrayBuffer());
+          data = new Uint8Array(buf);
+        } catch (decodeErr) {
+          console.error('Decode failed', decodeErr);
+          loadingMsg.textContent = 'Failed to decode PDF';
+          return;
+        }
+
+        try {
+          const loadingTask = pdfjsLib.getDocument({ data });
+          const pdf = await loadingTask.promise;
+
+          for (let i = 1; i <= pdf.numPages; i++) {
+            loadingMsg.textContent = `Rendering page ${i} of ${pdf.numPages}…`;
+
+            const page = await pdf.getPage(i);
+            const vp = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = vp.width;
+            canvas.height = vp.height;
+            await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+            viewer.appendChild(canvas);
+          }
+
+          loadingMsg.style.display = 'none';
+        } catch (renderErr) {
+          console.error('Render failed', renderErr);
+          loadingMsg.textContent = 'Failed to render PDF';
+        }
+      };
+
+      // showPDFInline now injects JSONP instead of fetch() (unchanged)
+      window.showPDFInline = function (url) {
+        if (!/\.pdf(\?.*)?$/i.test(url)) {
+          alert('🚫 Invalid URL – please provide a link ending in “.pdf”.');
+          return;
+        }
+        // 1) Show overlay + initial spinner
+        overlay.style.display = 'flex';
+        loadingMsg.textContent = 'Fetching PDF…';
+        loadingMsg.style.display = 'flex';
+        viewer.innerHTML = '';
+
+        const old = document.getElementById('pdf-jsonp');
+        if (old) old.remove();
+
+        const pdfProxy =
+          'https://script.google.com/macros/s/AKfycbz0_5RWLfwQQEwPNehpiu0P__MEv3fSDZ0jYhb8l2_l8LUr1KswQLKF8EWps9JZpwq6/exec';
+        const src = pdfProxy
+          + '?pdf=' + encodeURIComponent(url)
+          + '&callback=pdfCallback';
+
+        const tag = document.createElement('script');
+        tag.id = 'pdf-jsonp';
+        tag.src = src;
+        document.body.appendChild(tag);
+      };
+    });
+  </script>
+
 </body>
 
 </html>
