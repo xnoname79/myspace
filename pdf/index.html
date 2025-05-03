@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF Book Search</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+    }
+
+    button {
+      padding: 0 20px;
+      font-size: 16px;
+      border: none;
+      background: #0073e6;
+      color: white;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005bb5;
+    }
+
+    #results {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .result {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .result a {
+      text-decoration: none;
+      color: #0073e6;
+      font-weight: bold;
+    }
+
+    .result p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      color: #555;
+    }
+
+    /* Overlay for PDF viewer */
+    .pdf-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .pdf-overlay iframe {
+      width: 80vw;
+      height: 90vh;
+      border: none;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      background: #fff;
+    }
+
+    .pdf-overlay .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 32px;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>📚 PDF Book Search</h1>
+  <form id="searchForm">
+    <input type="text" id="query" placeholder="Enter book title or topic…" required />
+    <button type="submit">Search PDFs</button>
+  </form>
+  <div id="results"></div>
+
+  <script>
+    // ← paste your Apps Script Web App URL here:
+    const PROXY = 'https://script.google.com/macros/s/AKfycbzdlbB7-oxzoXKQEYUzXK38BzRbKa6AIZu5xJvjszWhrBYLRupBZuqpkfR_guFP2E4Syw/exec';
+
+    function renderResults(data) {
+      const resultsDiv = document.getElementById('results');
+      if (data.error === 'limit') {
+        resultsDiv.textContent = '🚫 Daily limit reached (100). Come back tomorrow.';
+        return;
+      }
+      if (!data.items || data.items.length === 0) {
+        resultsDiv.textContent = 'No PDF results found.';
+        return;
+      }
+      resultsDiv.innerHTML = data.items.map(item => `
+        <div class="result">
+          <a href="${item.link}" onclick="showPDFInline(event,'${item.link}')">
+            ${item.title}
+          </a>
+          <p>${item.snippet}</p>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('searchForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const q = document.getElementById('query').value;
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.textContent = 'Loading…';
+
+      // Remove any old JSONP <script>
+      const old = document.getElementById('jsonp');
+      if (old) old.remove();
+
+      // Build JSONP URL with callback=handleResponse
+      const src = `${PROXY}`
+        + `?q=${encodeURIComponent(q)}`
+        + `&callback=handleResponse`;
+
+      const script = document.createElement('script');
+      script.src = src;
+      script.id = 'jsonp';
+      document.body.appendChild(script);
+    });
+
+    // Globally‐visible callback for JSONP
+    function handleResponse(data) {
+      renderResults(data);
+      // clean up the <script> tag
+      const script = document.getElementById('jsonp');
+      if (script) script.remove();
+    }
+
+    // Fetch PDF as blob and show in overlay
+    function showPDFInline(url) {
+      // build overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'pdf-overlay';
+      document.body.appendChild(overlay);
+
+      const closeBtn = document.createElement('div');
+      closeBtn.className = 'close-btn';
+      closeBtn.textContent = '✕';
+      closeBtn.onclick = () => document.body.removeChild(overlay);
+
+      const message = document.createElement('div');
+      message.style = 'position:absolute;bottom:20px;color:white;';
+      message.textContent = 'Loading PDF…';
+
+      const iframe = document.createElement('iframe');
+      // use Google Docs viewer
+      iframe.src =
+        'https://docs.google.com/gview?embedded=true&url=' +
+        encodeURIComponent(url);
+
+      // Flag to know if we’ve fallen back
+      let didFallback = false;
+
+      // 1) onload → success!
+      iframe.onload = () => {
+        if (!didFallback) {
+          clearTimeout(timeoutId);
+          message.textContent = ''; // clear the “Loading…”
+        }
+      };
+
+      // 2) onerror → immediate fallback
+      iframe.onerror = () => {
+        if (didFallback) return;
+        didFallback = true;
+        clearTimeout(timeoutId);
+        window.open(url, '_blank');
+        document.body.removeChild(overlay);
+      };
+
+      // 3) timeout → fallback
+      const timeoutId = setTimeout(() => {
+        if (didFallback) return;
+        didFallback = true;
+        message.textContent = '⏱️ Taking too long, opening in new tab…';
+        window.open(url, '_blank');
+        setTimeout(() => document.body.removeChild(overlay), 1500);
+      }, 10_000);
+
+      overlay.append(closeBtn, iframe, message);
+    }
+  </script>
+</body>
+
+</html>
