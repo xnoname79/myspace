@@ -164,6 +164,23 @@
         transform: rotate(360deg);
       }
     }
+
+    .page-wrapper {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-label {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 3px;
+      pointer-events: none;
+    }
   </style>
 </head>
 
@@ -292,7 +309,6 @@
         jsonp({ action: 'get', id: fileId, callback: 'pdfCallback' });
       }
 
-
       window.saveCallback = async function () {
         loadingMsg.style.display = 'none';
         saveBtn.style.display = "none"
@@ -317,6 +333,7 @@
         overlay.style.display = 'none';
         viewer.innerHTML = '';
         loadingMsg.style.display = 'none';
+        saveBtn.style.display = "none";
         onSavedChosen = false;
       });
 
@@ -359,7 +376,17 @@
             canvas.height = vp.height;
             await page.render({ canvasContext: ctx, viewport: vp }).promise;
 
-            viewer.appendChild(canvas);
+            // build wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'page-wrapper';
+
+            const label = document.createElement('div');
+            label.className = 'page-label';
+            label.textContent = `Page ${i} of ${pdf.numPages}`;
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(canvas);
+            viewer.appendChild(wrapper);
           }
           const pdfSaveBtn = document.getElementById("pdf-save-btn")
           if (!onSavedChosen) {
