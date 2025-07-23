@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Resume Builder</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+    }
+
+    .editor,
+    .resume {
+      width: 50%;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .editor {
+      background-color: #f9f9f9;
+      border-right: 1px solid #ddd;
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      font-size: 14px;
+    }
+
+    .resume {
+      background: #fff;
+      color: #000;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .resume .name {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .resume .contact {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 16px;
+      border-bottom: 1px solid #000;
+      margin-top: 2rem;
+      text-transform: uppercase;
+    }
+
+    .section {
+      margin-top: 1rem;
+    }
+
+    .section strong {
+      display: block;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .item {
+      margin-bottom: 1rem;
+    }
+
+    .job-title {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .job-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    ul {
+      margin-top: 0.25rem;
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
+    }
+
+    #exportBtn,
+    #shareBtn {
+      padding: 0.5rem 1rem;
+      font-size: 14px;
+      margin-right: 0.5rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #exportBtn:hover,
+    #shareBtn:hover {
+      background-color: #0056b3;
+    }
+
+    @media print {
+      body {
+        display: block;
+        margin: 0;
+        padding: 0;
+      }
+
+      .editor {
+        display: none;
+      }
+
+      .resume {
+        width: 100%;
+        max-width: 750px;
+        margin: auto;
+        padding: 2rem;
+        page-break-after: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="editor">
+    <h2>Edit Resume</h2>
+    <input id="nameInput" placeholder="Full Name">
+    <input id="contactInput" placeholder="Contact Info">
+    <textarea id="summaryInput" rows="5" placeholder="Summary of Qualifications"></textarea>
+    <textarea id="experienceInput" rows="10" placeholder="Professional Experience (HTML supported)"></textarea>
+    <textarea id="projectsInput" rows="5" placeholder="Projects (HTML supported)"></textarea>
+    <textarea id="skillsInput" rows="2" placeholder="Skills (comma separated)"></textarea>
+    <textarea id="educationInput" rows="2" placeholder="Education"></textarea>
+    <button id="exportBtn">Download PDF</button>
+    <button id="shareBtn">Copy Shareable Link</button>
+  </div>
+
+  <div class="resume" id="resumePreview">
+    <div class="name" id="namePreview">Thanh Dinh</div>
+    <div class="contact" id="contactPreview">+(84)869812198 | dnthanh1298@gmail.com | HCMC</div>
+
+    <h2>Summary of Qualifications</h2>
+    <ul id="summaryPreview"></ul>
+
+    <h2>Professional Experience</h2>
+    <div class="section" id="experiencePreview"></div>
+
+    <h2>Projects</h2>
+    <div id="projectsPreview"></div>
+
+    <h2>Technical Skills</h2>
+    <p id="skillsPreview"></p>
+
+    <h2>Education</h2>
+    <p id="educationPreview"></p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    const inputIds = ['nameInput', 'contactInput', 'summaryInput', 'experienceInput', 'projectsInput', 'skillsInput', 'educationInput'];
+
+    const updatePreview = () => {
+      document.getElementById('namePreview').innerText = document.getElementById('nameInput').value || 'Thanh Dinh';
+      document.getElementById('contactPreview').innerText = document.getElementById('contactInput').value || '+(84)869812198 | dnthanh1298@gmail.com | HCMC';
+
+      const summaryItems = document.getElementById('summaryInput').value.split('\n').filter(Boolean).map(item => `<li>${item}</li>`).join('');
+      document.getElementById('summaryPreview').innerHTML = summaryItems;
+
+      document.getElementById('experiencePreview').innerHTML = document.getElementById('experienceInput').value;
+      document.getElementById('projectsPreview').innerHTML = document.getElementById('projectsInput').value;
+      document.getElementById('skillsPreview').innerText = document.getElementById('skillsInput').value;
+      document.getElementById('educationPreview').innerText = document.getElementById('educationInput').value;
+    };
+
+    const toHex = (str) => Array.from(new TextEncoder().encode(str)).map(b => b.toString(16).padStart(2, '0')).join('');
+    const fromHex = (hex) => new TextDecoder().decode(Uint8Array.from(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))));
+
+    const loadFromQuery = () => {
+      const params = new URLSearchParams(window.location.search);
+      const data = params.get('data');
+      if (data) {
+        try {
+          const decoded = fromHex(data);
+          const values = JSON.parse(decoded);
+          inputIds.forEach(id => {
+            if (values[id]) document.getElementById(id).value = values[id];
+          });
+          updatePreview();
+        } catch (e) {
+          console.error('Failed to decode data:', e);
+        }
+      }
+    };
+
+    const generateShareLink = () => {
+      const values = {};
+      inputIds.forEach(id => values[id] = document.getElementById(id).value);
+      const hex = toHex(JSON.stringify(values));
+      const url = `${window.location.origin}${window.location.pathname}?data=${hex}`;
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Link copied to clipboard!");
+      });
+    };
+
+    document.querySelectorAll('textarea, input').forEach(el => {
+      el.addEventListener('input', updatePreview);
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', async () => {
+      const element = document.getElementById("resumePreview");
+      const canvas = await html2canvas(element, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [canvas.width, canvas.height] });
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save("resume.pdf");
+    });
+
+    document.getElementById('shareBtn').addEventListener('click', generateShareLink);
+
+    loadFromQuery();
+    updatePreview();
+  </script>
+</body>
+
+</html>
