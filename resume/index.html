@@ -16,6 +16,8 @@
       padding: 0;
       display: flex;
       height: 100vh;
+      flex-direction: row;
+      flex-wrap: wrap;
     }
 
     .editor,
@@ -88,6 +90,7 @@
       justify-content: space-between;
       font-size: 13px;
       font-style: italic;
+      flex-wrap: wrap;
     }
 
     ul {
@@ -116,6 +119,67 @@
       background-color: #0056b3;
     }
 
+    /* 🔁 Responsive for small devices */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .editor,
+      .resume {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+      }
+
+      .editor {
+        border-bottom: 1px solid #ccc;
+      }
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: left;
+      border-radius: 5px;
+      padding: 10px;
+      position: absolute;
+      z-index: 1;
+      bottom: 80%;
+      left: 50%;
+      margin-left: -125px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 12px;
+    }
+
+    .tooltip .tooltiptext button {
+      margin-top: 8px;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Print styles */
     @media print {
       body {
         display: block;
@@ -141,13 +205,57 @@
 <body>
   <div class="editor">
     <h2>Edit Resume</h2>
+    <label>
+      Full Name
+    </label>
     <input id="nameInput" placeholder="Full Name">
+
+    <label>
+      Contact Info
+    </label>
     <input id="contactInput" placeholder="Contact Info">
+
+    <label>
+      Summary of Qualifications
+    </label>
     <textarea id="summaryInput" rows="5" placeholder="Summary of Qualifications"></textarea>
+
+    <label>
+      Professional Experience
+      <span class="tooltip">&#9432;
+        <span class="tooltiptext">
+          Paste valid HTML inside this box to style your experience entries.<br>
+          Example:
+          <pre>&lt;div class=&quot;item&quot;&gt;...&lt;/div&gt;</pre>
+          <button onclick="copyHtmlToField('experienceInput', sampleExperience)">Copy Sample</button>
+        </span>
+      </span>
+    </label>
     <textarea id="experienceInput" rows="10" placeholder="Professional Experience (HTML supported)"></textarea>
+
+    <label>
+      Projects
+      <span class="tooltip">&#9432;
+        <span class="tooltiptext">
+          Paste valid HTML to style your project entries.<br>
+          Example:
+          <pre>&lt;div class=&quot;item&quot;&gt;...&lt;/div&gt;</pre>
+          <button onclick="copyHtmlToField('projectsInput', sampleProjects)">Copy Sample</button>
+        </span>
+      </span>
+    </label>
     <textarea id="projectsInput" rows="5" placeholder="Projects (HTML supported)"></textarea>
+
+    <label>
+      Skills
+    </label>
     <textarea id="skillsInput" rows="2" placeholder="Skills (comma separated)"></textarea>
+
+    <label>
+      Education
+    </label>
     <textarea id="educationInput" rows="2" placeholder="Education"></textarea>
+
     <button id="exportBtn">Download PDF</button>
     <button id="shareBtn">Copy Shareable Link</button>
   </div>
@@ -202,6 +310,31 @@
     const fromCompressedBase64 = (base64) => {
       return LZString.decompressFromEncodedURIComponent(base64);
     };
+
+    const sampleExperience = `<div class="item">
+  <div class="job-title">Software Engineer</div>
+  <div class="job-meta">
+    <span>Company Name</span><span>Jan 2020 - Present | Location</span>
+  </div>
+  <ul>
+    <li>Key accomplishment 1</li>
+    <li>Key accomplishment 2</li>
+  </ul>
+</div>`;
+
+    const sampleProjects = `<div class="item">
+  <div class="job-title">Project Title</div>
+  <ul>
+    <li>Project achievement 1</li>
+    <li>Project achievement 2</li>
+  </ul>
+</div>`;
+
+    function copyHtmlToField(fieldId, html) {
+      const el = document.getElementById(fieldId);
+      el.value = html;
+      el.dispatchEvent(new Event('input'));
+    }
 
     const loadFromQuery = () => {
       const params = new URLSearchParams(window.location.search);
