@@ -6,13 +6,14 @@
   <title>Countdown Timer</title>
   <style>
     :root {
-      --bg:         #f0f2f5;
-      --card-bg:    #ffffff;
-      --primary:    #1DB954;
-      --primary-dk: #17a44b;
+      --bg:         linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card-bg:    rgba(255, 255, 255, 0.95);
+      --primary:    #667eea;
+      --primary-dk: #764ba2;
+      --accent:     #1DB954;
       --text:       #333333;
-      --radius:     12px;
-      --shadow:     0 4px 12px rgba(0,0,0,0.1);
+      --radius:     20px;
+      --shadow:     0 20px 60px rgba(0,0,0,0.1);
     }
     *, *::before, *::after {
       box-sizing: border-box;
@@ -25,37 +26,75 @@
       justify-content: center;
       min-height: 100vh;
       background: var(--bg);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
       color: var(--text);
       padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 70%, rgba(29, 185, 84, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 30%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
     }
     .container {
       background: var(--card-bg);
+      backdrop-filter: blur(20px);
       width: 100%;
-      max-width: 360px;
-      padding: 2rem;
+      max-width: 400px;
+      padding: 3rem;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
     }
     h1 {
-      font-size: clamp(1.25rem, 5vw, 1.75rem);
+      font-size: clamp(1.5rem, 5vw, 2.25rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0;
     }
     .inputs {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
+      gap: 1rem;
     }
     .inputs input {
       width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: var(--radius);
+      padding: 1rem;
+      font-size: 1.1rem;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 15px;
       text-align: center;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      font-family: inherit;
+      font-weight: 500;
+    }
+
+    .inputs input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
     }
     /* Remove spinner in WebKit */
     input[type=number]::-webkit-inner-spin-button,
@@ -64,32 +103,120 @@
       margin: 0;
     }
     button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
       font-weight: 600;
       border: none;
-      border-radius: var(--radius);
-      background-color: var(--primary);
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
       color: #fff;
       cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      font-family: inherit;
     }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
     button:hover:not(:disabled) {
-      background-color: var(--primary-dk);
+      background: linear-gradient(135deg, var(--primary-dk) 0%, var(--primary) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
     }
+
     button:disabled {
-      background-color: #aaa;
+      background: linear-gradient(135deg, #aaa 0%, #999 100%);
       cursor: default;
+      transform: none;
+      box-shadow: none;
     }
+    .timer-display {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .progress-ring {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+
+    .progress-ring svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .progress-ring .background {
+      stroke: rgba(102, 126, 234, 0.1);
+    }
+
+    .progress-ring .progress {
+      stroke: var(--primary);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s ease;
+    }
+
     .display {
-      font-size: clamp(1.5rem, 8vw, 2.5rem);
-      font-weight: bold;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(1.5rem, 6vw, 2rem);
+      font-weight: 700;
+      color: var(--primary);
       min-height: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     @media (max-width: 400px) {
       .inputs {
         grid-template-columns: 1fr;
       }
+      
+      .container {
+        padding: 2rem;
+        max-width: 350px;
+      }
+      
+      .progress-ring {
+        width: 180px;
+        height: 180px;
+      }
+    }
+
+    .celebration {
+      animation: celebrate 2s ease-in-out;
+    }
+
+    @keyframes celebrate {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.05) rotate(1deg); }
+      50% { transform: scale(1.1) rotate(-1deg); }
+      75% { transform: scale(1.05) rotate(1deg); }
     }
   </style>
 </head>
@@ -101,15 +228,30 @@
       <input type="number" id="minutes" min="0" placeholder="Minutes"/>
     </div>
     <button id="startBtn">Start</button>
-    <div class="display" id="countdown">00:00:00</div>
+    <div class="timer-display">
+      <div class="progress-ring">
+        <svg>
+          <circle class="background" cx="100" cy="100" r="90"></circle>
+          <circle class="progress" cx="100" cy="100" r="90" 
+                  stroke-dasharray="565.48" stroke-dashoffset="565.48" id="progressCircle"></circle>
+        </svg>
+        <div class="display" id="countdown">00:00:00</div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const hoursInput   = document.getElementById('hours');
-    const minutesInput = document.getElementById('minutes');
-    const startBtn     = document.getElementById('startBtn');
-    const display      = document.getElementById('countdown');
+    const hoursInput    = document.getElementById('hours');
+    const minutesInput  = document.getElementById('minutes');
+    const startBtn      = document.getElementById('startBtn');
+    const display       = document.getElementById('countdown');
+    const progressCircle = document.getElementById('progressCircle');
+    const container     = document.querySelector('.container');
     let intervalId;
+    let totalTime;
+    let remainingTime;
+
+    const circumference = 2 * Math.PI * 90; // 2πr where r=90
 
     function formatTime(sec) {
       const h = Math.floor(sec / 3600);
@@ -118,26 +260,49 @@
       return [h,m,s].map(n => String(n).padStart(2,'0')).join(':');
     }
 
-    startBtn.addEventListener('click', () => {
-      const hrs  = parseInt(hoursInput.value,   10) || 0;
-      const mins = parseInt(minutesInput.value, 10) || 0;
-      let total  = hrs * 3600 + mins * 60;
-      if (total <= 0) return;
+    function updateProgress() {
+      const progress = remainingTime / totalTime;
+      const offset = circumference * (1 - progress);
+      progressCircle.style.strokeDashoffset = offset;
+    }
 
+    startBtn.addEventListener('click', () => {
+      const hrs  = parseInt(hoursInput.value, 10) || 0;
+      const mins = parseInt(minutesInput.value, 10) || 0;
+      totalTime = hrs * 3600 + mins * 60;
+      if (totalTime <= 0) return;
+
+      remainingTime = totalTime;
       hoursInput.disabled   = true;
       minutesInput.disabled = true;
       startBtn.disabled     = true;
 
-      display.textContent = formatTime(total);
+      // Initialize progress circle
+      progressCircle.style.strokeDasharray = circumference;
+      progressCircle.style.strokeDashoffset = 0;
+
+      display.textContent = formatTime(remainingTime);
+      updateProgress();
+
       intervalId = setInterval(() => {
-        total--;
-        display.textContent = formatTime(total);
-        if (total <= 0) {
+        remainingTime--;
+        display.textContent = formatTime(remainingTime);
+        updateProgress();
+        
+        if (remainingTime <= 0) {
           clearInterval(intervalId);
-          display.textContent     = "Time’s up!";
-          hoursInput.disabled     = false;
-          minutesInput.disabled   = false;
-          startBtn.disabled       = false;
+          display.textContent = "Time's up!";
+          container.classList.add('celebration');
+          
+          // Reset after celebration
+          setTimeout(() => {
+            container.classList.remove('celebration');
+            hoursInput.disabled = false;
+            minutesInput.disabled = false;
+            startBtn.disabled = false;
+            progressCircle.style.strokeDashoffset = circumference;
+            display.textContent = "00:00:00";
+          }, 2000);
         }
       }, 1000);
     });
