@@ -193,14 +193,17 @@
   </div>
 
   <div class="tabs">
-    <div class="tab active" data-target="iframeMusic">Music</div>
+    <!-- <div class="tab" data-target="iframeMusic">Music</div> -->
+    <div class="tab active" data-target="iframeTools">Work Tools</div>
     <div class="tab" data-target="iframePDF">PDF Books</div>
     <div class="tab" data-target="iframeTimer">Timer</div>
   </div>
 
   <div class="content">
-    <iframe id="iframeMusic" class="iframe-content active" src="/music"
+    <!-- <iframe id="iframeMusic" class="iframe-content" src="/music"
       sandbox="allow-scripts allow-same-origin">
+    </iframe> -->
+    <iframe id="iframeTools" class="iframe-content active" src="/tools" sandbox="allow-forms allow-scripts allow-same-origin">
     </iframe>
     <iframe id="iframePDF" class="iframe-content" src="/pdf" sandbox="allow-forms allow-scripts allow-same-origin">
     </iframe>
