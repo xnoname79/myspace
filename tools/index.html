@@ -430,6 +430,12 @@
 
 <body>
   <div class="container">
+    <div style="margin-bottom: 20px;">
+      <button onclick="goHome()" style="background: rgba(74, 85, 104, 0.1); color: #4a5568; border: 2px solid rgba(74, 85, 104, 0.2); padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">
+        ← Back to Home
+      </button>
+    </div>
+    
     <h1>🛠️ Work Tools</h1>
     
     <div class="tool-nav">
@@ -515,6 +521,19 @@
     });
 
     // JSON Parser Functions
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      const lineHeight = 20; // Approximate line height in pixels
+      const padding = 32; // Top and bottom padding
+      const minHeight = 140; // Minimum height
+      const maxHeight = 600; // Maximum height to prevent excessive scrolling
+      
+      const scrollHeight = textarea.scrollHeight;
+      const newHeight = Math.max(minHeight, Math.min(maxHeight, scrollHeight + padding));
+      
+      textarea.style.height = newHeight + 'px';
+    }
+
     function formatJSON() {
       const input = document.getElementById('json-input').value.trim();
       const output = document.getElementById('json-output');
@@ -527,6 +546,7 @@
       try {
         const parsed = JSON.parse(input);
         output.value = JSON.stringify(parsed, null, 2);
+        autoResizeTextarea(output);
         showMessage('json-message', '✅ JSON formatted successfully!', 'success');
       } catch (error) {
         showMessage('json-message', `❌ Invalid JSON: ${error.message}`, 'error');
@@ -545,6 +565,7 @@
       try {
         const parsed = JSON.parse(input);
         output.value = JSON.stringify(parsed);
+        autoResizeTextarea(output);
         showMessage('json-message', '✅ JSON minified successfully!', 'success');
       } catch (error) {
         showMessage('json-message', `❌ Invalid JSON: ${error.message}`, 'error');
@@ -829,6 +850,11 @@
 
     function sanitizeFilename(filename) {
       return filename.replace(/[^a-zA-Z0-9\-_\s]/g, '').replace(/\s+/g, '_').substring(0, 50);
+    }
+
+    // Navigation function
+    function goHome() {
+      window.location.href = '/';
     }
 
     // Initialize on page load

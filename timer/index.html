@@ -221,6 +221,12 @@
   </style>
 </head>
 <body>
+  <div style="position: absolute; top: 20px; left: 20px; z-index: 10;">
+    <button onclick="goHome()" style="background: rgba(255, 255, 255, 0.95); color: #667eea; border: 2px solid rgba(102, 126, 234, 0.2); padding: 12px 24px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+      ← Back to Home
+    </button>
+  </div>
+  
   <div class="container">
     <h1>Focus Timer</h1>
     <div class="inputs">
@@ -241,6 +247,11 @@
   </div>
 
   <script>
+    // Navigation function
+    function goHome() {
+      window.location.href = '/';
+    }
+
     const hoursInput    = document.getElementById('hours');
     const minutesInput  = document.getElementById('minutes');
     const startBtn      = document.getElementById('startBtn');
