@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>English Self-Learning App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 25% 75%, rgba(29, 185, 84, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 75% 25%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      /* max-width: 1200px; */
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 32px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-back {
+      margin-bottom: 20px;
+    }
+
+    .nav-back button {
+      background: rgba(102, 126, 234, 0.1);
+      color: #4a5568;
+      border: 2px solid rgba(102, 126, 234, 0.5);
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .nav-back button:hover {
+      background: rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(29, 185, 84, 0.3);
+    }
+
+    .tab:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    textarea, input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      padding: 12px 24px;
+      margin: 8px 5px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+      color: white;
+    }
+
+    .flashcard {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      padding: 25px;
+      margin: 20px 0;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .flashcard:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .word {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .pdf-upload {
+      border: 3px dashed #cbd5e0;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: rgba(249, 250, 251, 0.8);
+      cursor: pointer;
+    }
+
+    .pdf-upload:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .pdf-upload.dragover {
+      border-color: #1DB954;
+      background: rgba(29, 185, 84, 0.1);
+    }
+
+    .pdf-viewer {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .page-content {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .vocabulary-highlight {
+      background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+      padding: 2px 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .vocabulary-highlight:hover {
+      background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+      color: white;
+    }
+
+    .grammar-highlight {
+      background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
+      padding: 2px 4px;
+      border-radius: 4px;
+      border-bottom: 2px wavy #ef4444;
+    }
+
+    .analysis-panel {
+      display: block;
+      margin-top: 0;
+    }
+
+    .vocab-panel, .grammar-panel {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      height: 100%;
+    }
+
+    .vocab-item, .grammar-item {
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .analysis-panel {
+        flex: none !important;
+        width: 100%;
+        margin-top: 20px;
+      }
+      
+      /* Stack analysis panels vertically on mobile */
+      .analysis-panel > div {
+        flex-direction: column !important;
+      }
+      
+      .analysis-panel .vocab-panel,
+      .analysis-panel .grammar-panel {
+        margin-bottom: 20px;
+        flex: none !important;
+      }
+      
+      .tabs {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .container {
+        padding: 0 10px;
+      }
+      
+      /* Stack panels vertically on mobile */
+      .analysis-panel {
+        display: block !important;
+      }
+      
+      /* Make main flex container stack vertically on mobile */
+      div[style*="align-items: stretch"] {
+        flex-direction: column !important;
+        align-items: normal !important;
+      }
+      
+      div[style*="flex: 2"],
+      div[style*="flex: 1"] {
+        flex: none !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-back">
+      <button onclick="goHome()">← Back to Home</button>
+    </div>
+    
+    <h1>📚 English Self-Learning App</h1>
+    
+    <div class="tabs">
+      <div class="tab active" data-section="pdf-reader">📖 PDF Reader</div>
+      <div class="tab" data-section="grammar">📝 Grammar Practice</div>
+      <div class="tab" data-section="vocabulary">🎯 Vocabulary Builder</div>
+    </div>
+
+    <!-- PDF Reader Section -->
+    <section class="section active" id="pdf-reader">
+      <h2>📖 PDF Reader & Learning</h2>
+      <div class="pdf-upload" id="pdf-upload">
+        <input type="file" id="pdf-file" accept=".pdf" style="display: none;">
+        <div style="font-size: 3rem; margin-bottom: 20px;">📚</div>
+        <h3 style="margin-bottom: 15px; color: #4a5568;">Upload a PDF to Start Learning</h3>
+        <p style="color: #718096; margin-bottom: 20px;">Drop a PDF file here or click to browse</p>
+        <button class="btn-primary" onclick="event.stopPropagation(); document.getElementById('pdf-file').click();">
+          Choose PDF File
+        </button>
+      </div>
+      
+      <div id="pdf-viewer" class="pdf-viewer hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 id="pdf-title">Loading PDF...</h3>
+            <div id="reading-stats" style="font-size: 12px; color: #718096; margin-top: 5px;"></div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button id="analyze-btn" class="btn-primary" onclick="analyzeAndHighlightPage()">🔍 Analyze & Highlight Page</button>
+            <button class="btn-primary" onclick="showProgress()">📊 Progress</button>
+          </div>
+        </div>
+        
+        <!-- Page Navigation -->
+        <div id="page-navigation" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 12px; backdrop-filter: blur(10px);">
+          <button id="prev-page" class="btn-primary" onclick="goToPreviousPage()" disabled>
+            ← Previous
+          </button>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="color: #4a5568; font-weight: 500;">Page</span>
+            <input type="number" id="current-page-input" min="1" value="1" 
+                   style="width: 60px; padding: 5px 8px; border: 1px solid #d1d5db; border-radius: 6px; text-align: center;"
+                   onchange="goToPage(this.value)">
+            <span style="color: #4a5568;">of</span>
+            <span id="total-pages" style="color: #4a5568; font-weight: 500;">0</span>
+          </div>
+          <button id="next-page" class="btn-primary" onclick="goToNextPage()" disabled>
+            Next →
+          </button>
+          <div style="margin-left: 20px; position: relative;">
+            <button class="btn-success" onclick="bookmarkPage()" style="font-size: 12px; padding: 8px 12px;">
+              📖 Bookmark
+            </button>
+            <button class="btn-primary" onclick="toggleBookmarkDropdown()" style="font-size: 12px; padding: 8px 12px;" id="bookmark-dropdown-btn">
+              📋 Bookmarks
+            </button>
+            <div id="bookmark-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #d1d5db; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 200px; max-width: 300px; max-height: 300px; overflow-y: auto;"></div>
+          </div>
+        </div>
+        <!-- Main Content Area with Left/Right Panels - Auto Height -->
+        <div style="display: flex; gap: 20px; align-items: stretch;">
+          <!-- Left Panel - PDF Content -->
+          <div style="flex: 2; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div id="pdf-content"></div>
+          </div>
+          
+          <!-- Right Panel - Analysis -->
+          <div class="analysis-panel" id="analysis-panel" style="flex: 1; display: none;">
+            <!-- Sub-panels side by side -->
+            <div style="display: flex; gap: 15px; height: 100%;">
+              <div class="vocab-panel" style="flex: 1;">
+                <h4 style="margin-bottom: 15px; color: #2c3e50; font-size: 14px;">📝 Vocabulary Found</h4>
+                <div id="vocabulary-list"></div>
+              </div>
+              <div class="grammar-panel" style="flex: 1;">
+                <h4 style="margin-bottom: 15px; color: #2c3e50; font-size: 14px;">📚 Grammar Notes</h4>
+                <div id="grammar-notes"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Translation Section -->
+      <div style="margin-top: 30px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+        <h3 style="color: #2c3e50; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+          <span>🌍</span>
+          <span>Quick Translation (Bing Translator)</span>
+        </h3>
+        
+        <!-- Try Bing Translator Iframe -->
+        <div id="bing-translator-container">
+          <iframe 
+            src="https://www.bing.com/translator" 
+            style="width: 100%; height: 500px; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" 
+            title="Bing Translator"
+            onload="checkBingTranslatorLoad()"
+            onerror="fallbackToCustomTranslator()">
+          </iframe>
+        </div>
+        
+        <!-- Fallback Custom Translator (hidden initially) -->
+        <div id="custom-translator" style="display: none;">
+          <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #92400e;">
+            ⚠️ Bing Translator cannot be embedded. Using custom translator instead.
+          </div>
+          
+          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <!-- Input Section -->
+            <div style="flex: 1; min-width: 300px;">
+              <label style="display: block; margin-bottom: 8px; color: #4a5568; font-weight: 500;">English Text:</label>
+              <textarea 
+                id="translate-input" 
+                placeholder="Enter English text to translate..."
+                style="width: 100%; height: 150px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 16px; resize: vertical;"
+              ></textarea>
+              <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="translateText()" id="translate-btn">
+                  🔄 Translate
+                </button>
+                <button class="btn-primary" onclick="speakEnglish()" id="speak-english-btn" style="background: #8b5cf6;">
+                  🔊 Listen (EN)
+                </button>
+                <button class="btn-success" onclick="clearTranslation()" style="background: #6b7280;">
+                  🗑️ Clear
+                </button>
+              </div>
+            </div>
+            
+            <!-- Output Section -->
+            <div style="flex: 1; min-width: 300px;">
+              <label style="display: block; margin-bottom: 8px; color: #4a5568; font-weight: 500;">Vietnamese Translation:</label>
+              <div 
+                id="translate-output" 
+                style="width: 100%; height: 150px; padding: 15px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; overflow-y: auto; color: #2d3748;"
+              >
+                <span style="color: #9ca3af;">Translation will appear here...</span>
+              </div>
+              <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <button class="btn-success" onclick="copyTranslation()" id="copy-btn" disabled>
+                  📋 Copy Translation
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Translation History -->
+          <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <h4 style="color: #2c3e50; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+              <span>📚</span>
+              <span>Recent Translations</span>
+              <button onclick="clearTranslationHistory()" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: auto; cursor: pointer;">
+                Clear All
+              </button>
+            </h4>
+            <div id="translation-history" style="max-height: 200px; overflow-y: auto;">
+              <p style="color: #9ca3af; text-align: center; padding: 20px;">No translations yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grammar Practice Section -->
+    <section class="section" id="grammar">
+      <h2>📝 Grammar Practice</h2>
+      <textarea id="sentence" placeholder="Type your sentence here..." rows="4"></textarea>
+      <button class="btn-primary" onclick="checkGrammar()">Check Grammar</button>
+      <div id="grammarResult" style="margin-top: 20px;"></div>
+    </section>
+
+    <!-- Vocabulary Builder Section -->
+    <section class="section" id="vocabulary">
+      <h2>🎯 Vocabulary Builder</h2>
+      <button class="btn-primary" onclick="getWord()">Get New Word</button>
+      <div id="flashcard" class="flashcard hidden">
+        <div class="word" id="word"></div>
+        <div id="definition" style="margin: 15px 0; color: #4a5568; font-size: 16px;"></div>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button class="btn-success" onclick="rememberWord()">✅ I know this</button>
+          <button class="btn-danger" onclick="reviewLater()">❌ Review later</button>
+        </div>
+      </div>
+      
+      <div id="review-words" style="margin-top: 30px;">
+        <h3 style="color: #2c3e50; margin-bottom: 15px;">📚 Words to Review</h3>
+        <div id="review-list"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ===== Navigation Functions =====
+    function goHome() {
+      window.location.href = '/';
+    }
+
+    // ===== Tab Navigation =====
+    document.addEventListener('DOMContentLoaded', function() {
+      const tabs = document.querySelectorAll('.tab');
+      const sections = document.querySelectorAll('.section');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          // Remove active class from all tabs and sections
+          tabs.forEach(t => t.classList.remove('active'));
+          sections.forEach(s => s.classList.remove('active'));
+          
+          // Add active class to clicked tab
+          tab.classList.add('active');
+          
+          // Show corresponding section
+          const sectionId = tab.getAttribute('data-section');
+          document.getElementById(sectionId).classList.add('active');
+        });
+      });
+
+      // Initialize PDF upload functionality
+      initializePDFReader();
+      updateReviewList();
+      
+      // Initialize translation history
+      updateTranslationHistory();
+      
+      // Add keyboard navigation for PDF
+      document.addEventListener('keydown', handleKeyboardNavigation);
+    });
+
+    // ===== PDF Reader Functionality =====
+    let currentPDFData = null;
+    let analysisMode = false;
+    let pdfDocument = null;
+    let currentPageNum = 1;
+    let totalPages = 0;
+
+    function initializePDFReader() {
+      const pdfUpload = document.getElementById('pdf-upload');
+      const pdfFile = document.getElementById('pdf-file');
+
+      // File input change handler
+      pdfFile.addEventListener('change', handlePDFUpload);
+
+      // Drag and drop handlers
+      pdfUpload.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        pdfUpload.classList.add('dragover');
+      });
+
+      pdfUpload.addEventListener('dragleave', () => {
+        pdfUpload.classList.remove('dragover');
+      });
+
+      pdfUpload.addEventListener('drop', (e) => {
+        e.preventDefault();
+        pdfUpload.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type === 'application/pdf') {
+          handlePDFFile(files[0]);
+        }
+      });
+
+      pdfUpload.addEventListener('click', (e) => {
+        // Only trigger file input if clicking on the upload area itself, not the button
+        if (e.target === pdfUpload || e.target.closest('.pdf-upload') === pdfUpload) {
+          if (!e.target.closest('button')) {
+            pdfFile.click();
+          }
+        }
+      });
+    }
+
+    function handlePDFUpload(e) {
+      const file = e.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        handlePDFFile(file);
+      }
+    }
+
+    async function handlePDFFile(file) {
+      try {
+        const titleElement = document.getElementById('pdf-title');
+        titleElement.textContent = `Loading: ${file.name}`;
+        
+        // Show loading state
+        showNotification('Loading PDF...', 'info');
+        
+        // Validate file size (limit to 50MB)
+        if (file.size > 50 * 1024 * 1024) {
+          throw new Error('File too large. Please choose a PDF smaller than 50MB.');
+        }
+        
+        // Use FileReader to get array buffer for PDF.js
+        const arrayBuffer = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsArrayBuffer(file);
+        });
+
+        titleElement.textContent = `Extracting text from: ${file.name}`;
+        
+        // Extract text from PDF using PDF.js
+        const extractedText = await extractTextFromPDF(arrayBuffer);
+        
+        if (!extractedText || extractedText.trim() === '') {
+          throw new Error('No readable text found in this PDF');
+        }
+        
+        displayPDFContent(file.name, extractedText);
+        showNotification('PDF loaded successfully!', 'success');
+        
+      } catch (error) {
+        console.error('Error processing PDF:', error);
+        document.getElementById('pdf-title').textContent = 'Error loading PDF';
+        showNotification(error.message || 'Error processing PDF file. Please try again.', 'error');
+        
+        // Reset to upload state
+        setTimeout(() => {
+          document.getElementById('pdf-upload').classList.remove('hidden');
+          document.getElementById('pdf-viewer').classList.add('hidden');
+        }, 2000);
+      }
+    }
+
+    async function extractTextFromPDF(arrayBuffer) {
+      try {
+        pdfDocument = await pdfjsLib.getDocument(arrayBuffer).promise;
+        totalPages = pdfDocument.numPages;
+        
+        // Update UI with total pages
+        document.getElementById('total-pages').textContent = totalPages;
+        document.getElementById('current-page-input').max = totalPages;
+        updateNavigationButtons();
+        
+        // Extract text from first page only
+        const firstPageText = await extractPageText(1);
+        return firstPageText || 'No text content found on this page.';
+        
+      } catch (error) {
+        console.error('PDF extraction error:', error);
+        return 'Error extracting text from PDF. The file might be corrupted or password-protected.';
+      }
+    }
+
+    async function extractPageText(pageNum) {
+      try {
+        if (!pdfDocument || pageNum < 1 || pageNum > totalPages) {
+          return 'Invalid page number';
+        }
+        
+        const page = await pdfDocument.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        
+        let pageText = '';
+        textContent.items.forEach(item => {
+          pageText += item.str + ' ';
+        });
+        
+        return pageText.trim() || 'No text content found on this page.';
+        
+      } catch (error) {
+        console.error('Page extraction error:', error);
+        return 'Error extracting text from this page.';
+      }
+    }
+
+    function displayPDFContent(filename, text) {
+      document.getElementById('pdf-upload').classList.add('hidden');
+      document.getElementById('pdf-viewer').classList.remove('hidden');
+      document.getElementById('pdf-title').textContent = filename;
+      
+      currentPageNum = 1;
+      document.getElementById('current-page-input').value = currentPageNum;
+      
+      displayCurrentPage(text);
+      
+      currentPDFData = { 
+        filename, 
+        text: text, // Current page text
+        currentPage: currentPageNum,
+        totalPages: totalPages,
+        wordCount: text.split(/\s+/).length,
+        readingStartTime: Date.now(),
+        totalReadingTime: 0,
+        analyzedWords: [],
+        sessionStats: {
+          wordsLearned: 0,
+          grammarPointsSeen: 0,
+          timeSpent: 0
+        }
+      };
+      
+      updateReadingStats();
+      trackReadingProgress();
+    }
+
+    function displayCurrentPage(text) {
+      const content = document.getElementById('pdf-content');
+      content.innerHTML = `
+        <div class="page-content">
+          <div style="text-align: center; margin-bottom: 20px; color: #667eea; font-weight: 600; font-size: 14px;">
+            📖 Page ${currentPageNum} of ${totalPages}
+          </div>
+          ${text.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')}
+        </div>
+      `;
+      
+      // Clear any existing analysis
+      const analysisPanel = document.getElementById('analysis-panel');
+      analysisPanel.style.display = 'none';
+      analysisMode = false;
+    }
+
+    // Navigation functions
+    async function goToNextPage() {
+      if (currentPageNum < totalPages) {
+        await loadPage(currentPageNum + 1);
+      }
+    }
+
+    async function goToPreviousPage() {
+      if (currentPageNum > 1) {
+        await loadPage(currentPageNum - 1);
+      }
+    }
+
+    async function goToPage(pageNum) {
+      const page = parseInt(pageNum);
+      if (page >= 1 && page <= totalPages && page !== currentPageNum) {
+        await loadPage(page);
+      }
+    }
+
+    async function loadPage(pageNum) {
+      try {
+        // Show loading state
+        const content = document.getElementById('pdf-content');
+        content.innerHTML = '<div style="text-align: center; padding: 40px; color: #667eea;">📄 Loading page...</div>';
+        
+        // Extract text for the requested page
+        const pageText = await extractPageText(pageNum);
+        
+        // Update current page
+        currentPageNum = pageNum;
+        document.getElementById('current-page-input').value = currentPageNum;
+        updateNavigationButtons();
+        
+        // Update current PDF data
+        if (currentPDFData) {
+          currentPDFData.text = pageText;
+          currentPDFData.currentPage = currentPageNum;
+          currentPDFData.wordCount = pageText.split(/\s+/).length;
+          updateReadingStats();
+        }
+        
+        // Display the page
+        displayCurrentPage(pageText);
+        
+        // Save reading progress with page info
+        saveReadingProgress();
+        
+      } catch (error) {
+        console.error('Error loading page:', error);
+        showNotification('Error loading page', 'error');
+      }
+    }
+
+    function updateNavigationButtons() {
+      const prevBtn = document.getElementById('prev-page');
+      const nextBtn = document.getElementById('next-page');
+      
+      prevBtn.disabled = currentPageNum <= 1;
+      nextBtn.disabled = currentPageNum >= totalPages;
+      
+      // Update button styles based on disabled state
+      if (prevBtn.disabled) {
+        prevBtn.style.opacity = '0.5';
+        prevBtn.style.cursor = 'not-allowed';
+      } else {
+        prevBtn.style.opacity = '1';
+        prevBtn.style.cursor = 'pointer';
+      }
+      
+      if (nextBtn.disabled) {
+        nextBtn.style.opacity = '0.5';
+        nextBtn.style.cursor = 'not-allowed';
+      } else {
+        nextBtn.style.opacity = '1';
+        nextBtn.style.cursor = 'pointer';
+      }
+    }
+
+    function bookmarkPage() {
+      if (!currentPDFData) return;
+      
+      let bookmarks = JSON.parse(localStorage.getItem('pdfBookmarks') || '{}');
+      const bookId = generateBookId(currentPDFData.filename);
+      
+      if (!bookmarks[bookId]) {
+        bookmarks[bookId] = {
+          filename: currentPDFData.filename,
+          bookmarks: []
+        };
+      }
+      
+      const bookmark = {
+        page: currentPageNum,
+        timestamp: Date.now(),
+        note: `Page ${currentPageNum}`
+      };
+      
+      // Avoid duplicate bookmarks for same page
+      const existingIndex = bookmarks[bookId].bookmarks.findIndex(b => b.page === currentPageNum);
+      if (existingIndex >= 0) {
+        bookmarks[bookId].bookmarks[existingIndex] = bookmark;
+        showNotification('Bookmark updated!', 'info');
+      } else {
+        bookmarks[bookId].bookmarks.push(bookmark);
+        showNotification('Page bookmarked!', 'success');
+      }
+      
+      localStorage.setItem('pdfBookmarks', JSON.stringify(bookmarks));
+    }
+
+    function handleKeyboardNavigation(event) {
+      // Only handle keyboard navigation if PDF viewer is active and no input is focused
+      const activeSection = document.querySelector('.section.active');
+      if (!activeSection || activeSection.id !== 'pdf-reader' || !pdfDocument) {
+        return;
+      }
+      
+      // Don't handle keys if user is typing in an input field
+      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+        return;
+      }
+      
+      switch(event.key) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          event.preventDefault();
+          goToPreviousPage();
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+        case ' ': // Spacebar
+          event.preventDefault();
+          goToNextPage();
+          break;
+        case 'Home':
+          event.preventDefault();
+          loadPage(1);
+          break;
+        case 'End':
+          event.preventDefault();
+          loadPage(totalPages);
+          break;
+      }
+    }
+
+    function updateReadingStats() {
+      if (!currentPDFData) return;
+      
+      const statsDiv = document.getElementById('reading-stats');
+      const wordsPerMinute = 200; // Average reading speed
+      const estimatedTime = Math.ceil(currentPDFData.wordCount / wordsPerMinute);
+      
+      statsDiv.innerHTML = `
+        📖 ${currentPDFData.wordCount} words • 
+        ⏱️ ~${estimatedTime}min read • 
+        🎯 ${currentPDFData.sessionStats.wordsLearned} words learned
+      `;
+    }
+
+    function trackReadingProgress() {
+      if (!currentPDFData) return;
+      
+      // Update total reading time every 10 seconds
+      const interval = setInterval(() => {
+        if (!currentPDFData) {
+          clearInterval(interval);
+          return;
+        }
+        
+        currentPDFData.totalReadingTime = Date.now() - currentPDFData.readingStartTime;
+        currentPDFData.sessionStats.timeSpent = Math.floor(currentPDFData.totalReadingTime / 1000 / 60); // minutes
+        updateReadingStats();
+        
+        // Save progress to localStorage
+        saveReadingProgress();
+      }, 10000);
+    }
+
+    function saveReadingProgress() {
+      if (!currentPDFData) return;
+      
+      let allProgress = JSON.parse(localStorage.getItem('readingProgress') || '{}');
+      const bookId = generateBookId(currentPDFData.filename);
+      
+      allProgress[bookId] = {
+        filename: currentPDFData.filename,
+        lastRead: Date.now(),
+        currentPage: currentPDFData.currentPage || 1,
+        totalPages: currentPDFData.totalPages || 1,
+        totalTimeSpent: currentPDFData.sessionStats.timeSpent,
+        wordsLearned: currentPDFData.sessionStats.wordsLearned,
+        grammarPointsSeen: currentPDFData.sessionStats.grammarPointsSeen,
+        analyzedWords: currentPDFData.analyzedWords
+      };
+      
+      localStorage.setItem('readingProgress', JSON.stringify(allProgress));
+    }
+
+    function generateBookId(filename) {
+      // Simple hash function for book ID
+      let hash = 0;
+      for (let i = 0; i < filename.length; i++) {
+        const char = filename.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash).toString();
+    }
+
+    function showProgress() {
+      const allProgress = JSON.parse(localStorage.getItem('readingProgress') || '{}');
+      const totalBooks = Object.keys(allProgress).length;
+      const totalWordsLearned = Object.values(allProgress).reduce((sum, book) => sum + (book.wordsLearned || 0), 0);
+      const totalTimeSpent = Object.values(allProgress).reduce((sum, book) => sum + (book.totalTimeSpent || 0), 0);
+      
+      const popup = document.createElement('div');
+      popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 1000;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      `;
+      
+      const recentBooks = Object.entries(allProgress)
+        .sort(([,a], [,b]) => (b.lastRead || 0) - (a.lastRead || 0))
+        .slice(0, 5);
+      
+      popup.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="margin: 0; color: #2c3e50;">📊 Reading Progress</h2>
+          <button onclick="this.parentElement.parentElement.remove()" 
+                  style="background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px;">×</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+          <div style="text-align: center; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: bold; color: #0369a1;">${totalBooks}</div>
+            <div style="font-size: 12px; color: #64748b;">Books Read</div>
+          </div>
+          <div style="text-align: center; padding: 15px; background: #f0fdf4; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: bold; color: #16a34a;">${totalWordsLearned}</div>
+            <div style="font-size: 12px; color: #64748b;">Words Learned</div>
+          </div>
+          <div style="text-align: center; padding: 15px; background: #fef3c7; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: bold; color: #d97706;">${totalTimeSpent}m</div>
+            <div style="font-size: 12px; color: #64748b;">Time Spent</div>
+          </div>
+        </div>
+        
+        <h3 style="color: #2c3e50; margin-bottom: 15px;">Recent Books</h3>
+        ${recentBooks.length > 0 ? recentBooks.map(([id, book]) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #667eea;">
+            <div>
+              <div style="font-weight: 500; color: #2c3e50;">${book.filename}</div>
+              <div style="font-size: 12px; color: #718096;">
+                📖 Page ${book.currentPage || 1}/${book.totalPages || 1} • 
+                ${book.wordsLearned || 0} words • ${book.totalTimeSpent || 0}min • 
+                ${new Date(book.lastRead).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p style="color: #718096; text-align: center; padding: 20px;">No books read yet</p>'}
+        
+        ${getCurrentBookBookmarks()}
+        
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+          <h4 style="color: #2c3e50; margin-bottom: 10px;">Learning Tips</h4>
+          <div style="font-size: 14px; color: #4a5568; line-height: 1.5;">
+            • Click on highlighted words to see definitions<br>
+            • Use the "Analyze Page" button to find new vocabulary<br>
+            • Review your saved words regularly for better retention<br>
+            • Try to read for at least 15 minutes daily
+          </div>
+          
+          <h4 style="color: #2c3e50; margin: 15px 0 10px 0;">Keyboard Shortcuts</h4>
+          <div style="font-size: 14px; color: #4a5568; line-height: 1.5;">
+            • <strong>Arrow keys</strong> or <strong>Spacebar</strong> - Navigate pages<br>
+            • <strong>Home</strong> - Go to first page<br>
+            • <strong>End</strong> - Go to last page<br>
+            • Type page number and press Enter to jump to specific page
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(popup);
+    }
+
+    function getCurrentBookBookmarks() {
+      if (!currentPDFData) return '';
+      
+      const bookmarks = JSON.parse(localStorage.getItem('pdfBookmarks') || '{}');
+      const bookId = generateBookId(currentPDFData.filename);
+      const currentBookBookmarks = bookmarks[bookId]?.bookmarks || [];
+      
+      if (currentBookBookmarks.length === 0) {
+        return '';
+      }
+      
+      // Sort bookmarks by page number
+      const sortedBookmarks = currentBookBookmarks.sort((a, b) => a.page - b.page);
+      
+      return `
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+          <h3 style="color: #2c3e50; margin-bottom: 15px;">📖 Current Book Bookmarks</h3>
+          ${sortedBookmarks.map(bookmark => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 6px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+              <div>
+                <div style="font-weight: 500; color: #92400e;">Page ${bookmark.page}</div>
+                <div style="font-size: 11px; color: #a16207;">${new Date(bookmark.timestamp).toLocaleString()}</div>
+              </div>
+              <div style="display: flex; gap: 5px;">
+                <button onclick="jumpToBookmark(${bookmark.page}); this.closest('.popup, [style*=fixed]').remove();" 
+                        style="background: #f59e0b; color: white; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 11px; font-weight: 500;">
+                  Go to Page
+                </button>
+                <button onclick="deleteBookmark(${bookmark.page}); showProgress();" 
+                        style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 6px 8px; cursor: pointer; font-size: 11px;">
+                  ×
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    async function jumpToBookmark(pageNum) {
+      if (pdfDocument && pageNum >= 1 && pageNum <= totalPages) {
+        await loadPage(pageNum);
+        showNotification(`Jumped to bookmarked page ${pageNum}!`, 'success');
+      }
+    }
+
+    function deleteBookmark(pageNum) {
+      if (!currentPDFData) return;
+      
+      let bookmarks = JSON.parse(localStorage.getItem('pdfBookmarks') || '{}');
+      const bookId = generateBookId(currentPDFData.filename);
+      
+      if (bookmarks[bookId] && bookmarks[bookId].bookmarks) {
+        bookmarks[bookId].bookmarks = bookmarks[bookId].bookmarks.filter(b => b.page !== pageNum);
+        
+        // Remove book entry if no bookmarks left
+        if (bookmarks[bookId].bookmarks.length === 0) {
+          delete bookmarks[bookId];
+        }
+        
+        localStorage.setItem('pdfBookmarks', JSON.stringify(bookmarks));
+        showNotification(`Bookmark for page ${pageNum} deleted!`, 'info');
+        
+        // Refresh dropdown if it's open
+        const dropdown = document.getElementById('bookmark-dropdown');
+        if (dropdown.style.display !== 'none') {
+          updateBookmarkDropdown();
+        }
+      }
+    }
+
+    function toggleBookmarkDropdown() {
+      const dropdown = document.getElementById('bookmark-dropdown');
+      if (dropdown.style.display === 'none') {
+        updateBookmarkDropdown();
+        dropdown.style.display = 'block';
+        
+        // Close dropdown when clicking outside
+        setTimeout(() => {
+          document.addEventListener('click', closeBookmarkDropdownOnClickOutside);
+        }, 100);
+      } else {
+        dropdown.style.display = 'none';
+        document.removeEventListener('click', closeBookmarkDropdownOnClickOutside);
+      }
+    }
+
+    function closeBookmarkDropdownOnClickOutside(event) {
+      const dropdown = document.getElementById('bookmark-dropdown');
+      const button = document.getElementById('bookmark-dropdown-btn');
+      
+      if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+        dropdown.style.display = 'none';
+        document.removeEventListener('click', closeBookmarkDropdownOnClickOutside);
+      }
+    }
+
+    function updateBookmarkDropdown() {
+      if (!currentPDFData) return;
+      
+      const dropdown = document.getElementById('bookmark-dropdown');
+      const bookmarks = JSON.parse(localStorage.getItem('pdfBookmarks') || '{}');
+      const bookId = generateBookId(currentPDFData.filename);
+      const currentBookBookmarks = bookmarks[bookId]?.bookmarks || [];
+      
+      if (currentBookBookmarks.length === 0) {
+        dropdown.innerHTML = '<div style="padding: 15px; text-align: center; color: #718096; font-size: 14px;">No bookmarks yet</div>';
+        return;
+      }
+      
+      // Sort bookmarks by page number
+      const sortedBookmarks = currentBookBookmarks.sort((a, b) => a.page - b.page);
+      
+      dropdown.innerHTML = `
+        <div style="padding: 12px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; font-weight: 600; color: #374151;">
+          📖 Bookmarks (${sortedBookmarks.length})
+        </div>
+        ${sortedBookmarks.map(bookmark => `
+          <div style="padding: 10px 12px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; hover: background-color: #f9fafb;" 
+               onmouseover="this.style.backgroundColor='#f9fafb'" 
+               onmouseout="this.style.backgroundColor='white'">
+            <div>
+              <div style="font-weight: 500; color: #1f2937;">Page ${bookmark.page}</div>
+              <div style="font-size: 11px; color: #6b7280;">${new Date(bookmark.timestamp).toLocaleString()}</div>
+            </div>
+            <div style="display: flex; gap: 5px;">
+              <button onclick="jumpToBookmark(${bookmark.page}); toggleBookmarkDropdown();" 
+                      style="background: #3b82f6; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 10px;">
+                Go
+              </button>
+              <button onclick="deleteBookmark(${bookmark.page});" 
+                      style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 10px;">
+                ×
+              </button>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    async function analyzeAndHighlightPage() {
+      if (!currentPDFData) return;
+      
+      const analyzeBtn = document.getElementById('analyze-btn');
+      const analysisPanel = document.getElementById('analysis-panel');
+      const vocabularyList = document.getElementById('vocabulary-list');
+      const grammarNotes = document.getElementById('grammar-notes');
+      const content = document.getElementById('pdf-content');
+      
+      // Show loading state on button
+      const originalBtnText = analyzeBtn.innerHTML;
+      analyzeBtn.innerHTML = '⏳ Analyzing...';
+      analyzeBtn.disabled = true;
+      analyzeBtn.style.opacity = '0.7';
+      analyzeBtn.style.cursor = 'not-allowed';
+      
+      // Show loading state in analysis panel
+      vocabularyList.innerHTML = '<div style="text-align: center; padding: 20px; color: #667eea;">🔍 Analyzing vocabulary...</div>';
+      grammarNotes.innerHTML = '<div style="text-align: center; padding: 20px; color: #667eea;">📚 Analyzing grammar...</div>';
+      analysisPanel.style.display = 'block';
+
+      try {
+        // Extract and analyze vocabulary
+        const vocabularyWords = await analyzeVocabulary(currentPDFData.text);
+        
+        // Analyze grammar patterns
+        const grammarPoints = await analyzeGrammar(currentPDFData.text);
+
+        // Populate vocabulary with difficulty levels and definitions
+        vocabularyList.innerHTML = vocabularyWords.map(vocab => 
+          `<div class="vocab-item">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <strong>${vocab.word}</strong>
+              <span style="background: ${getDifficultyColor(vocab.level)}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                ${vocab.level}
+              </span>
+            </div>
+            <div style="margin-top: 8px;">
+              <div style="color: #4a5568; font-size: 14px;">${vocab.definition}</div>
+              ${vocab.example ? `<div style="color: #718096; font-size: 12px; font-style: italic; margin-top: 4px;">Example: ${vocab.example}</div>` : ''}
+            </div>
+          </div>`
+        ).join('');
+
+        // Populate grammar notes
+        grammarNotes.innerHTML = grammarPoints.map(grammar => 
+          `<div class="grammar-item">
+            <strong>${grammar.point}</strong>
+            <div style="margin-top: 8px;">
+              <div style="color: #4a5568; font-size: 14px;">Example: ${grammar.example}</div>
+              <div style="color: #718096; font-size: 12px; margin-top: 4px;">${grammar.explanation}</div>
+            </div>
+          </div>`
+        ).join('');
+
+        // Apply highlighting to the page content
+        const vocabWordList = vocabularyWords.map(v => v.word);
+        let highlightedText = content.innerHTML;
+        
+        // Highlight vocabulary words with difficulty colors
+        vocabWordList.forEach(word => {
+          const regex = new RegExp(`\\b(${word})\\b`, 'gi');
+          const level = getDifficultyLevel(word);
+          const color = getDifficultyColor(level);
+          highlightedText = highlightedText.replace(regex, 
+            `<span class="vocabulary-highlight" style="background: ${color}; color: white; padding: 2px 4px; border-radius: 3px;" title="${level}: Click to see definition">$1</span>`);
+        });
+        
+        // Highlight grammar patterns (more precise to avoid highlighting entire paragraphs)
+        const grammarPatterns = [
+          // Passive Voice patterns (limit to 3-4 words max)
+          { pattern: /\b(is|are|was|were|been|be)\s+\w*ed\b/gi, class: 'grammar-highlight' },
+          { pattern: /\b(has|have|had)\s+been\s+\w*ed\b/gi, class: 'grammar-highlight' },
+          { pattern: /\b(will|would|can|could|may|might)\s+be\s+\w*ed\b/gi, class: 'grammar-highlight' },
+          
+          // Perfect tenses (specific patterns)
+          { pattern: /\b(has|have|had)\s+\w*ed\b/gi, class: 'grammar-highlight' },
+          { pattern: /\b(has|have|had)\s+been\s+\w*ing\b/gi, class: 'grammar-highlight' },
+          
+          // Conjunctions and connectors (single words or short phrases)
+          { pattern: /\b(although|though|even though|while|whereas|however|nevertheless|nonetheless|furthermore|moreover|therefore|thus|consequently)\b/gi, class: 'grammar-highlight' },
+          { pattern: /\bas a result\b/gi, class: 'grammar-highlight' },
+          { pattern: /\bin addition\b/gi, class: 'grammar-highlight' },
+          { pattern: /\bon the other hand\b/gi, class: 'grammar-highlight' },
+          
+          // Correlative conjunctions (limited scope)
+          { pattern: /\bnot only\b[\s\w]{1,15}\bbut also\b/gi, class: 'grammar-highlight' },
+          { pattern: /\beither\b[\s\w]{1,10}\bor\b/gi, class: 'grammar-highlight' },
+          { pattern: /\bneither\b[\s\w]{1,10}\bnor\b/gi, class: 'grammar-highlight' },
+          { pattern: /\bboth\b[\s\w]{1,10}\band\b/gi, class: 'grammar-highlight' },
+          
+          // Modal verbs (2-3 words max)
+          { pattern: /\b(must|should|ought to|have to|need to|be able to)\s+\w+/gi, class: 'grammar-highlight' },
+          { pattern: /\b(used to|would rather|had better)\s+\w+/gi, class: 'grammar-highlight' },
+          { pattern: /\bbe going to\s+\w+/gi, class: 'grammar-highlight' },
+          
+          // Participles (short phrases only)
+          { pattern: /\b(having|being)\s+\w*ed\b/gi, class: 'grammar-highlight' },
+          
+          // Relative pronouns (just the pronoun + 1-2 words)
+          { pattern: /\b(which|that|who|whom|whose|where|when)\s+\w+(?:\s+\w+)?\b/gi, class: 'grammar-highlight' },
+          
+          // Comparatives (short phrases)
+          { pattern: /\b(more|most|less|least)\s+\w+\s+than\b/gi, class: 'grammar-highlight' },
+          { pattern: /\b\w+er\s+than\b/gi, class: 'grammar-highlight' },
+          { pattern: /\bthe\s+\w+est\b/gi, class: 'grammar-highlight' },
+          
+          // Emphasis (short cleft sentences)
+          { pattern: /\bit\s+(is|was)\s+\w+\s+(who|that|which)\b/gi, class: 'grammar-highlight' },
+          { pattern: /\bwhat\s+\w+\s+(is|was)\b/gi, class: 'grammar-highlight' },
+          
+          // Subjunctive (short patterns)
+          { pattern: /\bit\s+(is|was)\s+(important|necessary|essential|vital)\s+that\b/gi, class: 'grammar-highlight' }
+        ];
+        
+        grammarPatterns.forEach(patternObj => {
+          highlightedText = highlightedText.replace(patternObj.pattern, 
+            `<span class="${patternObj.class}" title="Grammar pattern: Click for explanation">$&</span>`);
+        });
+        
+        content.innerHTML = highlightedText;
+        
+        // Add click handlers for highlighted elements
+        addHighlightClickHandlers();
+        
+        // Set analysis mode to true
+        analysisMode = true;
+        
+        // Update button text to show it can clear highlights
+        analyzeBtn.innerHTML = '🗑️ Clear Analysis';
+        analyzeBtn.onclick = clearAnalysisAndHighlights;
+
+        // Update grammar points seen in progress
+        if (currentPDFData) {
+          currentPDFData.sessionStats.grammarPointsSeen = grammarPoints.length;
+          saveReadingProgress();
+        }
+        
+        showNotification('Page analyzed and highlighted successfully!', 'success');
+
+      } catch (error) {
+        console.error('Analysis error:', error);
+        vocabularyList.innerHTML = '<div style="color: #ef4444;">Error analyzing vocabulary</div>';
+        grammarNotes.innerHTML = '<div style="color: #ef4444;">Error analyzing grammar</div>';
+        showNotification('Error analyzing page. Please try again.', 'error');
+      } finally {
+        // Reset button state
+        analyzeBtn.disabled = false;
+        analyzeBtn.style.opacity = '1';
+        analyzeBtn.style.cursor = 'pointer';
+      }
+    }
+
+    async function analyzeVocabulary(text) {
+      const words = extractComplexWords(text);
+      const vocabularyWords = [];
+
+      for (const word of words.slice(0, 15)) { // Limit to 15 words for performance
+        try {
+          const definition = await getWordDefinition(word);
+          const level = getDifficultyLevel(word);
+          
+          if (definition) {
+            vocabularyWords.push({
+              word: word,
+              definition: definition.definition,
+              example: definition.example,
+              level: level
+            });
+          }
+        } catch (error) {
+          console.error(`Error getting definition for ${word}:`, error);
+        }
+      }
+
+      return vocabularyWords;
+    }
+
+    function extractComplexWords(text) {
+      // Remove page markers and clean text
+      const cleanText = text.replace(/--- Page \d+ ---/g, '').toLowerCase();
+      
+      // Extract words (remove punctuation, numbers, short words)
+      const words = cleanText.match(/\b[a-z]{6,}\b/g) || [];
+      
+      // Filter out common words and duplicates
+      const commonWords = new Set(['through', 'between', 'without', 'because', 'example', 'different', 'important', 'information', 'development', 'education', 'government', 'management', 'business', 'process', 'system', 'service', 'another', 'however', 'against', 'within', 'during', 'before', 'around', 'should', 'though', 'something', 'nothing', 'everything', 'someone', 'everyone', 'anyone', 'problem', 'question', 'ability', 'quality', 'property', 'activity', 'security', 'society', 'community', 'company', 'product', 'project', 'program', 'provide', 'include', 'require', 'support', 'create', 'develop', 'consider', 'increase', 'various', 'several', 'certain', 'similar', 'general', 'special', 'possible', 'available', 'necessary', 'current']);
+      
+      const uniqueWords = [...new Set(words)]
+        .filter(word => !commonWords.has(word))
+        .filter(word => word.length >= 6);
+
+      return uniqueWords.slice(0, 20); // Return top 20 complex words
+    }
+
+    async function getWordDefinition(word) {
+      try {
+        // Try Free Dictionary API first
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data[0] && data[0].meanings && data[0].meanings[0].definitions[0]) {
+            const meaning = data[0].meanings[0].definitions[0];
+            return {
+              definition: meaning.definition,
+              example: meaning.example || null
+            };
+          }
+        }
+      } catch (error) {
+        console.error('Dictionary API error:', error);
+      }
+
+      // Fallback: try to get synonyms from Datamuse
+      try {
+        const response = await fetch(`https://api.datamuse.com/words?ml=${word}&max=1`);
+        const data = await response.json();
+        if (data.length > 0) {
+          return {
+            definition: `Related concept: ${data[0].word}`,
+            example: null
+          };
+        }
+      } catch (error) {
+        console.error('Datamuse API error:', error);
+      }
+
+      return null;
+    }
+
+    function getDifficultyLevel(word) {
+      // Simple heuristic for difficulty level based on word characteristics
+      const length = word.length;
+      const hasComplexSuffixes = /tion|sion|ment|ness|ity|acy|ism|able|ible|ous|ive|ate|ize/.test(word);
+      const hasLatinRoots = /spect|dict|ject|struct|tract|port|form|press|tend|pend|cred|fid|duc|mit|vert|quer|sequ|vid|voc|scrib|grad|cap|cip/.test(word);
+      
+      if (length >= 12 || (hasComplexSuffixes && hasLatinRoots)) {
+        return 'Advanced';
+      } else if (length >= 9 || hasComplexSuffixes || hasLatinRoots) {
+        return 'Intermediate';
+      } else if (length >= 7) {
+        return 'Upper-Beginner';
+      } else {
+        return 'Beginner';
+      }
+    }
+
+    function getDifficultyColor(level) {
+      const colors = {
+        'Beginner': '#10b981',
+        'Upper-Beginner': '#06b6d4', 
+        'Intermediate': '#f59e0b',
+        'Advanced': '#ef4444'
+      };
+      return colors[level] || '#6b7280';
+    }
+
+    async function analyzeGrammar(text) {
+      const grammarPatterns = [];
+
+      // Detect various grammar patterns using regex
+      const patterns = [
+        // Passive Voice
+        {
+          pattern: /\b(is|are|was|were|been|be)\s+\w*ed\b/gi,
+          point: 'Passive Voice',
+          explanation: 'Used when the focus is on the action or result, not the doer'
+        },
+        {
+          pattern: /\b(has|have|had)\s+(been)\s+\w*ed\b/gi,
+          point: 'Perfect Passive Voice',
+          explanation: 'Used to describe completed actions where the focus is on the result'
+        },
+        {
+          pattern: /\b(will|would|can|could|may|might)\s+(be)\s+\w*ed\b/gi,
+          point: 'Modal Passive Voice',
+          explanation: 'Used to express possibility, ability, or necessity in passive constructions'
+        },
+        
+        // Perfect Tenses
+        {
+          pattern: /\b(has|have|had)\s+\w*ed\b/gi,
+          point: 'Perfect Tense',
+          explanation: 'Used to show completed actions or states connected to another time'
+        },
+        {
+          pattern: /\b(has|have|had)\s+(been)\s+\w*ing\b/gi,
+          point: 'Perfect Continuous Tense',
+          explanation: 'Used to show ongoing actions that started in the past and continue or have just finished'
+        },
+        
+        // Conditional Sentences (simplified)
+        {
+          pattern: /\bif\s+[\w\s]{1,20}(would|could|might|should)\b/gi,
+          point: 'Conditional Sentences',
+          explanation: 'Used to express hypothetical or unlikely situations and their consequences'
+        },
+        
+        // Conjunctions and Connectors
+        {
+          pattern: /\b(although|though|even though|while|whereas)\b/gi,
+          point: 'Concessive Conjunctions',
+          explanation: 'Used to express contrast or unexpected results'
+        },
+        {
+          pattern: /\b(however|nevertheless|nonetheless|furthermore|moreover)\b/gi,
+          point: 'Transition Words',
+          explanation: 'Used to connect ideas and show relationships between sentences'
+        },
+        {
+          pattern: /\b(therefore|thus|consequently|as a result)\b/gi,
+          point: 'Cause and Effect Connectors',
+          explanation: 'Used to show the result or consequence of an action or situation'
+        },
+        {
+          pattern: /\bnot only\b[\s\w]{1,15}\bbut also\b/gi,
+          point: 'Correlative Conjunctions',
+          explanation: 'Used to connect two equal grammatical elements for emphasis'
+        },
+        {
+          pattern: /\beither\b[\s\w]{1,10}\bor\b/gi,
+          point: 'Alternative Conjunctions',
+          explanation: 'Used to present alternatives or choices'
+        },
+        
+        // Modal Verbs
+        {
+          pattern: /\b(must|should|ought to|have to|need to)\s+\w+/gi,
+          point: 'Modal Verbs (Obligation/Necessity)',
+          explanation: 'Used to express obligation, necessity, or strong recommendation'
+        },
+        {
+          pattern: /\b(used to|would rather|had better)\s+\w+/gi,
+          point: 'Modal Expressions',
+          explanation: 'Used to express past habits, preferences, or advice'
+        },
+        {
+          pattern: /\bbe going to\s+\w+/gi,
+          point: 'Future Expression',
+          explanation: 'Used to express future plans or intentions'
+        },
+        
+        // Participles
+        {
+          pattern: /\b(having|being)\s+\w*ed\b/gi,
+          point: 'Perfect Participle',
+          explanation: 'Used to show that one action was completed before another'
+        },
+        
+        // Relative Clauses
+        {
+          pattern: /\b(which|that|who|whom|whose|where|when)\s+\w+(?:\s+\w+)?\b/gi,
+          point: 'Relative Clauses',
+          explanation: 'Used to provide additional information about a noun'
+        },
+        
+        // Comparatives
+        {
+          pattern: /\b(more|most|less|least)\s+\w+\s+(than|of)\b/gi,
+          point: 'Comparative/Superlative Forms',
+          explanation: 'Used to compare things or show the highest/lowest degree'
+        },
+        {
+          pattern: /\b\w+er\s+than\b/gi,
+          point: 'Comparative Adjectives',
+          explanation: 'Used to compare two things'
+        },
+        
+        // Emphasis and Cleft Sentences
+        {
+          pattern: /\bit\s+(is|was)\s+\w+\s+(who|that|which)\b/gi,
+          point: 'Cleft Sentences (Emphasis)',
+          explanation: 'Used to emphasize a particular part of a sentence'
+        },
+        {
+          pattern: /\bwhat\s+\w+\s+(is|was)\b/gi,
+          point: 'Pseudo-cleft Sentences',
+          explanation: 'Used for emphasis by highlighting the important information'
+        },
+        
+        // Subjunctive
+        {
+          pattern: /\bit\s+(is|was)\s+(important|necessary|essential|vital)\s+that\b/gi,
+          point: 'Subjunctive Mood',
+          explanation: 'Used to express importance, necessity, or recommendations'
+        }
+      ];
+
+      patterns.forEach(patternObj => {
+        const matches = text.match(patternObj.pattern);
+        if (matches && matches.length > 0) {
+          grammarPatterns.push({
+            point: patternObj.point,
+            example: matches[0].length > 100 ? matches[0].substring(0, 100) + '...' : matches[0],
+            explanation: patternObj.explanation,
+            count: matches.length
+          });
+        }
+      });
+
+      return grammarPatterns.slice(0, 8); // Limit to 8 grammar points
+    }
+
+    function clearAnalysisAndHighlights() {
+      if (!currentPDFData) return;
+      
+      const content = document.getElementById('pdf-content');
+      const analysisPanel = document.getElementById('analysis-panel');
+      const analyzeBtn = document.getElementById('analyze-btn');
+      
+      // Remove highlights from content
+      content.innerHTML = content.innerHTML.replace(/<span class="[^"]*highlight"[^>]*>(.*?)<\/span>/gi, '$1');
+      
+      // Hide analysis panel
+      analysisPanel.style.display = 'none';
+      
+      // Reset analysis mode
+      analysisMode = false;
+      
+      // Reset button
+      analyzeBtn.innerHTML = '🔍 Analyze & Highlight Page';
+      analyzeBtn.onclick = analyzeAndHighlightPage;
+      
+      showNotification('Analysis cleared', 'info');
+    }
+
+    function addHighlightClickHandlers() {
+      // Add click handlers for vocabulary highlights
+      document.querySelectorAll('.vocabulary-highlight').forEach(element => {
+        element.addEventListener('click', async function() {
+          const word = this.textContent.trim().toLowerCase();
+          const definition = await getWordDefinition(word);
+          
+          if (definition) {
+            showWordPopup(word, definition);
+          }
+        });
+      });
+      
+      // Add click handlers for grammar highlights
+      document.querySelectorAll('.grammar-highlight').forEach(element => {
+        element.addEventListener('click', function() {
+          const text = this.textContent.trim();
+          showGrammarPopup(text);
+        });
+      });
+    }
+
+    function showWordPopup(word, definition) {
+      const popup = document.createElement('div');
+      popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 1000;
+        max-width: 400px;
+        border: 2px solid #667eea;
+      `;
+      
+      popup.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0; color: #2c3e50; text-transform: capitalize;">${word}</h3>
+          <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
+        </div>
+        <div style="color: #4a5568; margin-bottom: 15px;">${definition.definition}</div>
+        ${definition.example ? `<div style="color: #718096; font-style: italic; font-size: 14px; border-left: 3px solid #e2e8f0; padding-left: 10px;">Example: ${definition.example}</div>` : ''}
+        <button onclick="addToVocabReview('${word}')" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 15px;">Add to Review List</button>
+      `;
+      
+      document.body.appendChild(popup);
+    }
+
+    function showGrammarPopup(text) {
+      const grammarExplanations = {
+        'has been': 'Present Perfect Passive - describes completed actions with focus on result',
+        'have been': 'Present Perfect Passive - describes completed actions with focus on result', 
+        'was': 'Past Passive Voice - describes past actions where subject receives action',
+        'were': 'Past Passive Voice - describes past actions where subject receives action',
+        'although': 'Concessive clause - expresses contrast or unexpected results',
+        'though': 'Concessive clause - expresses contrast or unexpected results',
+        'not only': 'Correlative conjunction - connects equal elements for emphasis',
+        'having': 'Perfect participle - shows one action completed before another'
+      };
+      
+      let explanation = 'Complex grammar structure';
+      for (const [key, value] of Object.entries(grammarExplanations)) {
+        if (text.toLowerCase().includes(key)) {
+          explanation = value;
+          break;
+        }
+      }
+      
+      const popup = document.createElement('div');
+      popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 1000;
+        max-width: 400px;
+        border: 2px solid #f59e0b;
+      `;
+      
+      popup.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0; color: #2c3e50;">Grammar Pattern</h3>
+          <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
+        </div>
+        <div style="color: #4a5568; margin-bottom: 10px; font-weight: bold;">"${text}"</div>
+        <div style="color: #6b7280; font-size: 14px;">${explanation}</div>
+      `;
+      
+      document.body.appendChild(popup);
+    }
+
+    function addToVocabReview(word) {
+      if (!reviewList.includes(word)) {
+        reviewList.push(word);
+        localStorage.setItem("reviewList", JSON.stringify(reviewList));
+        updateReviewList();
+        
+        // Update learning progress
+        if (currentPDFData) {
+          currentPDFData.sessionStats.wordsLearned++;
+          currentPDFData.analyzedWords.push({
+            word: word,
+            learnedAt: Date.now(),
+            source: currentPDFData.filename
+          });
+          updateReadingStats();
+          saveReadingProgress();
+        }
+        
+        showNotification(`Added "${word}" to review list!`, 'success');
+      } else {
+        showNotification(`"${word}" is already in your review list`, 'info');
+      }
+    }
+
+    // ===== Grammar Correction via LanguageTool API =====
+    async function checkGrammar() {
+      const text = document.getElementById("sentence").value;
+      if (!text) {
+        alert("Please type a sentence first!");
+        return;
+      }
+
+      const resultDiv = document.getElementById("grammarResult");
+      resultDiv.innerHTML = '<p style="color: #667eea;">Checking grammar...</p>';
+
+      try {
+        const res = await fetch("https://api.languagetoolplus.com/v2/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `text=${encodeURIComponent(text)}&language=en-US`
+        });
+        const data = await res.json();
+
+        let resultHTML = "";
+        if (data.matches.length === 0) {
+          resultHTML = '<div style="background: #d1fae5; border: 1px solid #10b981; padding: 15px; border-radius: 8px; color: #065f46;"><p>✅ Excellent! No grammar mistakes found.</p></div>';
+        } else {
+          resultHTML = '<div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px;"><h4 style="color: #92400e; margin-bottom: 10px;">Grammar Suggestions:</h4><ul style="margin: 0; padding-left: 20px;">';
+          data.matches.forEach(m => {
+            resultHTML += `<li style="margin-bottom: 10px; color: #92400e;"><strong>Issue:</strong> ${m.message}<br><strong>Suggestion:</strong> ${m.replacements.map(r => r.value).join(", ")}</li>`;
+          });
+          resultHTML += '</ul></div>';
+        }
+        resultDiv.innerHTML = resultHTML;
+      } catch (error) {
+        resultDiv.innerHTML = '<div style="background: #fecaca; border: 1px solid #ef4444; padding: 15px; border-radius: 8px; color: #991b1b;"><p>❌ Error checking grammar. Please try again.</p></div>';
+      }
+    }
+
+    // ===== Vocabulary Flashcards =====
+    let reviewList = JSON.parse(localStorage.getItem("reviewList") || "[]");
+
+    async function getWord() {
+      try {
+        const res = await fetch("https://api.datamuse.com/words?ml=learn&max=10&v=enwiki");
+        const data = await res.json();
+
+        if (data.length === 0) {
+          alert("No word found, try again!");
+          return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * data.length);
+        const word = data[randomIndex].word;
+        document.getElementById("word").textContent = word;
+
+        // Try to get definition from dictionary API
+        try {
+          const defRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+          const defData = await defRes.json();
+          
+          if (defData[0] && defData[0].meanings) {
+            const meaning = defData[0].meanings[0].definitions[0].definition;
+            document.getElementById("definition").innerHTML = `<strong>Definition:</strong> ${meaning}`;
+          } else {
+            // Fallback to synonyms
+            const related = await fetch(`https://api.datamuse.com/words?rel_syn=${word}&max=5`);
+            const relatedData = await related.json();
+            document.getElementById("definition").innerHTML = 
+              relatedData.length > 0 ? `<strong>Synonyms:</strong> ${relatedData.map(d => d.word).join(", ")}` : "No definition found.";
+          }
+        } catch {
+          document.getElementById("definition").innerHTML = "Definition not available.";
+        }
+
+        document.getElementById("flashcard").classList.remove("hidden");
+      } catch (error) {
+        alert("Error fetching word. Please try again.");
+      }
+    }
+
+    function rememberWord() {
+      document.getElementById("flashcard").classList.add("hidden");
+      showNotification("Great! Word mastered ✅", "success");
+    }
+
+    function reviewLater() {
+      const word = document.getElementById("word").textContent;
+      if (!reviewList.includes(word)) {
+        reviewList.push(word);
+        localStorage.setItem("reviewList", JSON.stringify(reviewList));
+        updateReviewList();
+      }
+      document.getElementById("flashcard").classList.add("hidden");
+      showNotification("Added to review list ❌", "info");
+    }
+
+    function updateReviewList() {
+      const reviewListDiv = document.getElementById("review-list");
+      if (reviewList.length === 0) {
+        reviewListDiv.innerHTML = '<p style="color: #718096;">No words to review yet.</p>';
+      } else {
+        reviewListDiv.innerHTML = reviewList.map(word => 
+          `<div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 500;">${word}</span>
+            <button style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;" onclick="removeFromReview('${word}')">Remove</button>
+          </div>`
+        ).join('');
+      }
+    }
+
+    function removeFromReview(word) {
+      reviewList = reviewList.filter(w => w !== word);
+      localStorage.setItem("reviewList", JSON.stringify(reviewList));
+      updateReviewList();
+      showNotification("Removed from review list", "info");
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+        max-width: 300px;
+      `;
+      
+      const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        info: '#667eea'
+      };
+      
+      notification.style.background = colors[type] || colors.info;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // ===== Translation Functions =====
+    let translationHistory = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+    
+    async function translateText() {
+      const input = document.getElementById('translate-input').value.trim();
+      const output = document.getElementById('translate-output');
+      const btn = document.getElementById('translate-btn');
+      const copyBtn = document.getElementById('copy-btn');
+      const speakBtn = document.getElementById('speak-btn');
+      
+      if (!input) {
+        showNotification('Please enter text to translate', 'error');
+        return;
+      }
+      
+      // Show loading state
+      btn.innerHTML = '⏳ Translating...';
+      btn.disabled = true;
+      output.innerHTML = '<div style="color: #667eea; text-align: center;">Translating...</div>';
+      
+      try {
+        // Try multiple free translation APIs
+        let translation = await tryTranslateAPIs(input);
+        
+        if (translation) {
+          output.innerHTML = translation;
+          copyBtn.disabled = false;
+          speakBtn.disabled = false;
+          
+          // Add to history
+          addToTranslationHistory(input, translation);
+          showNotification('Translation completed!', 'success');
+        } else {
+          throw new Error('Translation failed');
+        }
+        
+      } catch (error) {
+        console.error('Translation error:', error);
+        output.innerHTML = '<div style="color: #ef4444;">Translation failed. Please try again.</div>';
+        showNotification('Translation failed. Please try again.', 'error');
+      } finally {
+        btn.innerHTML = '🔄 Translate';
+        btn.disabled = false;
+      }
+    }
+    
+    async function tryTranslateAPIs(text) {
+      // Try LibreTranslate (public instance)
+      try {
+        const response = await fetch('https://libretranslate.de/translate', {
+          method: 'POST',
+          body: JSON.stringify({
+            q: text,
+            source: 'en',
+            target: 'vi',
+            format: 'text'
+          }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data.translatedText;
+        }
+      } catch (error) {
+        console.error('LibreTranslate error:', error);
+      }
+      
+      // Fallback: MyMemory API (free, no key required)
+      try {
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|vi`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.responseData && data.responseData.translatedText) {
+            return data.responseData.translatedText;
+          }
+        }
+      } catch (error) {
+        console.error('MyMemory API error:', error);
+      }
+      
+      // Final fallback: Simple word-by-word using a basic dictionary
+      return await fallbackTranslation(text);
+    }
+    
+    async function fallbackTranslation(text) {
+      // Basic fallback - show original with note
+      return `[Translation service unavailable] Original text: "${text}"`;
+    }
+    
+    function clearTranslation() {
+      document.getElementById('translate-input').value = '';
+      document.getElementById('translate-output').innerHTML = '<span style="color: #9ca3af;">Translation will appear here...</span>';
+      document.getElementById('copy-btn').disabled = true;
+      document.getElementById('speak-btn').disabled = true;
+    }
+    
+    function copyTranslation() {
+      const output = document.getElementById('translate-output');
+      const text = output.textContent || output.innerText;
+      
+      if (text && !text.includes('Translation will appear')) {
+        navigator.clipboard.writeText(text).then(() => {
+          showNotification('Translation copied to clipboard!', 'success');
+        }).catch(() => {
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showNotification('Translation copied to clipboard!', 'success');
+        });
+      }
+    }
+    
+    function speakEnglish() {
+      const input = document.getElementById('translate-input');
+      const text = input.value.trim();
+      
+      if (text && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US'; // English
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+        showNotification('Speaking English...', 'info');
+      } else {
+        showNotification('Please enter English text first or text-to-speech not available', 'error');
+      }
+    }
+    
+    // Check if Bing Translator loads successfully
+    function checkBingTranslatorLoad() {
+      // If iframe loads, we assume Bing Translator works
+      console.log('Bing Translator loaded successfully');
+    }
+    
+    // Fallback to custom translator if Bing fails
+    function fallbackToCustomTranslator() {
+      console.log('Bing Translator failed to load, switching to custom translator');
+      document.getElementById('bing-translator-container').style.display = 'none';
+      document.getElementById('custom-translator').style.display = 'block';
+    }
+    
+    // Auto-detect if Bing Translator is blocked after 5 seconds
+    setTimeout(() => {
+      const iframe = document.querySelector('#bing-translator-container iframe');
+      if (iframe) {
+        try {
+          // Try to access iframe content - if blocked, this will fail
+          iframe.contentDocument;
+        } catch (e) {
+          // If we can't access it, it might be blocked
+          console.log('Bing Translator might be blocked, showing fallback option');
+          
+          // Add a toggle button to switch to custom translator
+          const container = document.getElementById('bing-translator-container');
+          const toggleBtn = document.createElement('div');
+          toggleBtn.style.cssText = 'margin-top: 10px; text-align: center;';
+          toggleBtn.innerHTML = `
+            <button onclick="fallbackToCustomTranslator()" class="btn-primary" style="background: #f59e0b;">
+              ⚠️ Switch to Custom Translator (if Bing doesn't work)
+            </button>
+          `;
+          container.appendChild(toggleBtn);
+        }
+      }
+    }, 5000);
+    
+    function addToTranslationHistory(english, vietnamese) {
+      const translation = {
+        english: english,
+        vietnamese: vietnamese,
+        timestamp: Date.now()
+      };
+      
+      // Add to beginning of history
+      translationHistory.unshift(translation);
+      
+      // Keep only last 10 translations
+      if (translationHistory.length > 10) {
+        translationHistory = translationHistory.slice(0, 10);
+      }
+      
+      localStorage.setItem('translationHistory', JSON.stringify(translationHistory));
+      updateTranslationHistory();
+    }
+    
+    function updateTranslationHistory() {
+      const historyDiv = document.getElementById('translation-history');
+      
+      if (translationHistory.length === 0) {
+        historyDiv.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 20px;">No translations yet</p>';
+        return;
+      }
+      
+      historyDiv.innerHTML = translationHistory.map(item => `
+        <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #667eea;">
+          <div style="font-size: 14px; color: #4a5568; margin-bottom: 6px;">
+            <strong>EN:</strong> ${item.english.length > 100 ? item.english.substring(0, 100) + '...' : item.english}
+          </div>
+          <div style="font-size: 14px; color: #2d3748; margin-bottom: 8px;">
+            <strong>VI:</strong> ${item.vietnamese.length > 100 ? item.vietnamese.substring(0, 100) + '...' : item.vietnamese}
+          </div>
+          <div style="font-size: 11px; color: #9ca3af; display: flex; justify-content: space-between; align-items: center;">
+            <span>${new Date(item.timestamp).toLocaleString()}</span>
+            <button onclick="reuseTranslation('${item.english.replace(/'/g, "\\'")}')"
+                    style="background: #667eea; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">
+              Reuse
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function reuseTranslation(text) {
+      document.getElementById('translate-input').value = text;
+      showNotification('Text loaded for translation', 'info');
+    }
+    
+    function clearTranslationHistory() {
+      translationHistory = [];
+      localStorage.removeItem('translationHistory');
+      updateTranslationHistory();
+      showNotification('Translation history cleared', 'info');
+    }
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+
+  <!-- PDF.js CDN for PDF parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    // Configure PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+</body>
+</html>
